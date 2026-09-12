@@ -20,7 +20,12 @@ export class CommandBuilderService {
     // Explicit FFmpeg location if available and not purely 'ffmpeg'
     if (ffmpegPath && ffmpegPath.trim().length > 0 && ffmpegPath !== 'ffmpeg') {
       const loc = path.isAbsolute(ffmpegPath) ? path.dirname(ffmpegPath) : ffmpegPath;
-      if (!options.customArgs?.some((a) => a.includes('--ffmpeg-location'))) {
+      const customArgsList = Array.isArray(options.customArgs)
+        ? options.customArgs
+        : typeof options.customArgs === 'string'
+        ? [options.customArgs]
+        : [];
+      if (!customArgsList.some((a: string) => a.includes('--ffmpeg-location'))) {
         args.push('--ffmpeg-location', loc);
         explanations.push({
           flag: '--ffmpeg-location',
@@ -325,8 +330,13 @@ export class CommandBuilderService {
     }
 
     // Custom user arguments
-    if (options.customArgs && Array.isArray(options.customArgs)) {
-      for (const arg of options.customArgs) {
+    if (options.customArgs) {
+      const customArgsList = Array.isArray(options.customArgs)
+        ? options.customArgs
+        : typeof options.customArgs === 'string'
+        ? options.customArgs.split(/\s+/).filter(Boolean)
+        : [];
+      for (const arg of customArgsList) {
         if (arg && arg.trim().length > 0) {
           args.push(arg.trim());
           explanations.push({

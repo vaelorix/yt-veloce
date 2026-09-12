@@ -91,13 +91,14 @@ export interface DownloadOptions {
   embedMetadata?: boolean;
   embedChapters?: boolean;
   splitChapters?: boolean;
-  sponsorBlockRemove?: boolean;
+  sponsorBlockRemove?: boolean | string;
   sponsorBlockCategories?: string;
   sponsorBlockMark?: boolean;
   writeSubtitles?: boolean;
   writeAutoSubtitles?: boolean;
   convertSubs?: string;
   subLanguages?: string;
+  subtitlesLangs?: string;
   writeThumbnail?: boolean;
   writeDescription?: boolean;
   writeInfoJson?: boolean;
@@ -110,7 +111,7 @@ export interface DownloadOptions {
   proxy?: string;
   cookiesBrowser?: string;
   cookieFile?: string;
-  customArgs?: string[];
+  customArgs?: string[] | string;
 }
 
 export interface DownloadProgress {
