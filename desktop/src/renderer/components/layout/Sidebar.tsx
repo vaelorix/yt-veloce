@@ -12,6 +12,7 @@ import {
   Info,
   Menu,
   Download,
+  Boxes,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -24,6 +25,7 @@ export type NavView =
   | 'format-explorer'
   | 'presets'
   | 'command-builder'
+  | 'dependencies'
   | 'logs'
   | 'settings'
   | 'about';
@@ -74,6 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       title: 'SYSTEM',
       items: [
+        { id: 'dependencies', label: 'Dependencies', icon: <Boxes size={16} /> },
         { id: 'logs', label: 'Logs & Diagnostics', icon: <ScrollText size={16} /> },
         { id: 'settings', label: 'Settings', icon: <Settings size={16} /> },
         { id: 'about', label: 'About', icon: <Info size={16} /> }

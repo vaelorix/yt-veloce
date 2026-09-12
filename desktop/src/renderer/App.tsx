@@ -20,6 +20,7 @@ import { PresetsView } from './views/PresetsView';
 import { CommandBuilderView } from './views/CommandBuilderView';
 import { LogsView } from './views/LogsView';
 import { SettingsView } from './views/SettingsView';
+import { DependenciesView } from './views/DependenciesView';
 import { AboutView } from './views/AboutView';
 import { DownloadDetailsModal } from './views/DownloadDetailsModal';
 
@@ -359,6 +360,10 @@ export const App: React.FC = () => {
               setLogs([]);
             }}
           />
+        )}
+
+        {currentView === 'dependencies' && (
+          <DependenciesView onRefreshEngine={refreshEngine} />
         )}
 
         {currentView === 'settings' && (

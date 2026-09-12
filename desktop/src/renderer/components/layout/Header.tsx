@@ -42,6 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
     'format-explorer': 'Format Explorer',
     presets: 'Presets & Profiles',
     'command-builder': 'Command Builder',
+    dependencies: 'System Dependencies',
     logs: 'Logs & Diagnostics',
     settings: 'Settings',
     about: 'About'
