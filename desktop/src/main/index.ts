@@ -13,7 +13,7 @@ let mainWindow: BrowserWindow | null = null;
 
 async function createWindow() {
   const logger = LoggingService.getInstance();
-  logger.info('system', 'Starting yt-dlp Professional Desktop GUI...');
+  logger.info('system', 'Starting yt-veloce Desktop Media Engine...');
 
   // Initialize Core Services
   const db = DatabaseService.getInstance();
@@ -35,7 +35,7 @@ async function createWindow() {
     minWidth: 1040,
     minHeight: 680,
     backgroundColor: '#0d1117',
-    title: 'Veloce yt-dlp Studio',
+    title: 'yt-veloce Media Engine',
     frame: false,
     autoHideMenuBar: true,
     webPreferences: {
