@@ -102,6 +102,8 @@ button {
   font-weight: 500;
   font-size: 13px;
   border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--text-primary);
   transition: all var(--transition-fast);
   white-space: nowrap;
 }

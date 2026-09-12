@@ -357,51 +357,45 @@ export const NewDownloadView: React.FC<NewDownloadViewProps> = ({
       )}
 
       {/* Download Configuration Mode Tabs */}
-      <div className="card">
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-subtle)', marginBottom: 16 }}>
-          <button
-            onClick={() => setActiveTab('preset')}
-            style={{
-              padding: '10px 16px',
-              borderBottom: activeTab === 'preset' ? '2px solid var(--accent-primary)' : '2px solid transparent',
-              color: activeTab === 'preset' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              fontWeight: activeTab === 'preset' ? 600 : 500
-            }}
-          >
-            <SlidersHorizontal size={16} />
-            Quick Presets
-          </button>
+      {/* Download Configuration Mode Tabs */}
+      <div className="card" style={{ padding: '16px 20px' }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 12, marginBottom: 16 }}>
+          <div className="segmented-control" style={{ padding: 3, gap: 4 }}>
+            <button
+              type="button"
+              className={`segmented-btn ${activeTab === 'preset' ? 'active' : ''}`}
+              onClick={() => setActiveTab('preset')}
+              style={{ padding: '5px 14px', fontSize: 12, gap: 6, display: 'inline-flex', alignItems: 'center' }}
+            >
+              <SlidersHorizontal size={13} color={activeTab === 'preset' ? 'var(--accent-primary-bright)' : 'currentColor'} />
+              <span>Quick Presets</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('custom')}
-            style={{
-              padding: '10px 16px',
-              borderBottom: activeTab === 'custom' ? '2px solid var(--accent-primary)' : '2px solid transparent',
-              color: activeTab === 'custom' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              fontWeight: activeTab === 'custom' ? 600 : 500
-            }}
-          >
-            <Layers size={16} />
-            Custom Streams & Codecs
-          </button>
+            <button
+              type="button"
+              className={`segmented-btn ${activeTab === 'custom' ? 'active' : ''}`}
+              onClick={() => setActiveTab('custom')}
+              style={{ padding: '5px 14px', fontSize: 12, gap: 6, display: 'inline-flex', alignItems: 'center' }}
+            >
+              <Layers size={13} color={activeTab === 'custom' ? 'var(--accent-primary-bright)' : 'currentColor'} />
+              <span>Custom Streams & Codecs</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('command')}
-            style={{
-              padding: '10px 16px',
-              borderBottom: activeTab === 'command' ? '2px solid var(--accent-primary)' : '2px solid transparent',
-              color: activeTab === 'command' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              fontWeight: activeTab === 'command' ? 600 : 500
-            }}
-          >
-            <Terminal size={16} />
-            Live Command Inspector
-          </button>
+            <button
+              type="button"
+              className={`segmented-btn ${activeTab === 'command' ? 'active' : ''}`}
+              onClick={() => setActiveTab('command')}
+              style={{ padding: '5px 14px', fontSize: 12, gap: 6, display: 'inline-flex', alignItems: 'center' }}
+            >
+              <Terminal size={13} color={activeTab === 'command' ? 'var(--accent-primary-bright)' : 'currentColor'} />
+              <span>Live Command Inspector</span>
+            </button>
+          </div>
         </div>
 
         {/* Tab 1: Presets */}
         {activeTab === 'preset' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
             {presets.map((preset) => {
               const isSelected = selectedPresetId === preset.id;
               return (
@@ -409,21 +403,33 @@ export const NewDownloadView: React.FC<NewDownloadViewProps> = ({
                   key={preset.id}
                   onClick={() => setSelectedPresetId(preset.id)}
                   style={{
-                    padding: 14,
+                    padding: '12px 14px',
                     borderRadius: 'var(--radius-md)',
-                    border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-subtle)',
-                    backgroundColor: isSelected ? 'var(--accent-primary-glow)' : 'var(--bg-surface)',
+                    border: isSelected
+                      ? '1px solid rgba(63, 185, 80, 0.45)'
+                      : '1px solid var(--border-light)',
+                    backgroundColor: isSelected
+                      ? 'rgba(46, 160, 67, 0.08)'
+                      : '#161b22',
                     cursor: 'pointer',
-                    transition: 'all var(--transition-fast)'
+                    transition: 'border-color var(--transition-fast)'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <span style={{ fontWeight: 600, fontSize: 14, color: isSelected ? 'var(--accent-primary)' : 'inherit' }}>
+                    <span
+                      style={{
+                        fontWeight: 600,
+                        fontSize: 13,
+                        color: isSelected ? 'var(--accent-primary-bright)' : 'var(--text-primary)'
+                      }}
+                    >
                       {preset.name}
                     </span>
-                    {isSelected && <Check size={16} color="var(--accent-primary)" />}
+                    {isSelected && <Check size={14} color="var(--accent-primary-bright)" />}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{preset.description}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                    {preset.description}
+                  </div>
                 </div>
               );
             })}
