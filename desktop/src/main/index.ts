@@ -1,5 +1,7 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import path from 'path';
+
+Menu.setApplicationMenu(null);
 import { DatabaseService } from './services/DatabaseService';
 import { YtDlpService } from './services/YtDlpService';
 import { FFmpegService } from './services/FFmpegService';
@@ -32,8 +34,9 @@ async function createWindow() {
     height: 840,
     minWidth: 1000,
     minHeight: 650,
-    backgroundColor: '#090d16',
+    backgroundColor: '#0d1117',
     title: 'yt-dlp Desktop Control Center',
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -41,6 +44,9 @@ async function createWindow() {
       sandbox: false
     }
   });
+
+  mainWindow.setMenuBarVisibility(false);
+  mainWindow.removeMenu();
 
   registerIpcHandlers(mainWindow);
 
