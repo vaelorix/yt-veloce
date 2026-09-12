@@ -11,6 +11,7 @@ import {
 } from '../shared/types';
 import { Sidebar, NavView } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
+import { TitleBar } from './components/layout/TitleBar';
 import { DashboardView } from './views/DashboardView';
 import { NewDownloadView } from './views/NewDownloadView';
 import { QueueView } from './views/QueueView';
@@ -250,7 +251,16 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-window">
+      {/* Sleek Frosted Glass Window Titlebar */}
+      <TitleBar
+        currentView={currentView}
+        engineStatus={engineStatus}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+      />
+
+      <div className="app-container">
       {/* Collapsible Sidebar */}
       <Sidebar
         currentView={currentView}
@@ -440,6 +450,7 @@ export const App: React.FC = () => {
           onRetry={handleRetry}
         />
       )}
+      </div>
     </div>
   );
 };

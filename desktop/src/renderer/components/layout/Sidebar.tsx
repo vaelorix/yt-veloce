@@ -139,7 +139,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 whiteSpace: 'nowrap'
               }}
             >
-              yt-dlp Desktop
+              Veloce yt-dlp
             </div>
             <div
               style={{
@@ -149,7 +149,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 whiteSpace: 'nowrap'
               }}
             >
-              Control Panel
+              Media Studio
             </div>
           </div>
         )}
