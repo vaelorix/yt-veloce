@@ -42,7 +42,40 @@ export class CommandBuilderService {
       description: 'Output filepath and filename template format'
     });
 
-    // Audio extraction
+    // Playlist safety: protect against dumping entire Watch Later or user playlists
+    if (options.isPlaylist === true) {
+      args.push('--yes-playlist');
+      explanations.push({
+        flag: '--yes-playlist',
+        description: 'Download the entire playlist if the URL contains a playlist'
+      });
+      if (options.playlistItems && options.playlistItems.trim().length > 0) {
+        args.push('--playlist-items', options.playlistItems.trim());
+        explanations.push({
+          flag: '--playlist-items',
+          value: options.playlistItems.trim(),
+          description: `Specific playlist items to download: ${options.playlistItems.trim()}`
+        });
+      }
+    } else {
+      args.push('--no-playlist');
+      explanations.push({
+        flag: '--no-playlist',
+        description: 'Download only the individual video, even if URL contains a playlist ID'
+      });
+    }
+
+    // Download time sections / clip range
+    if (options.downloadSections && options.downloadSections.trim().length > 0) {
+      args.push('--download-sections', options.downloadSections.trim());
+      explanations.push({
+        flag: '--download-sections',
+        value: options.downloadSections.trim(),
+        description: `Download specific section of video: ${options.downloadSections.trim()}`
+      });
+    }
+
+    // Audio extraction or Video stream format selection
     if (options.audioOnly) {
       args.push('-x');
       explanations.push({
@@ -55,7 +88,7 @@ export class CommandBuilderService {
         explanations.push({
           flag: '--audio-format',
           value: options.audioFormat,
-          description: `Specify audio format: ${options.audioFormat}`
+          description: `Specify audio extraction format: ${options.audioFormat}`
         });
       }
 
@@ -64,7 +97,7 @@ export class CommandBuilderService {
         explanations.push({
           flag: '--audio-quality',
           value: options.audioQuality,
-          description: `FFmpeg audio quality specification: ${options.audioQuality}`
+          description: `Audio bitrate / quality: ${options.audioQuality}`
         });
       }
     } else {
@@ -77,12 +110,29 @@ export class CommandBuilderService {
           description: 'Custom video and audio format selector expression'
         });
       } else {
-        // Default to best video and audio
-        args.push('-f', 'bv*+ba/b');
+        // Build dynamic format selector from resolution and codec preferences
+        let filterParts: string[] = [];
+        if (options.maxResolution && options.maxResolution !== 'none') {
+          filterParts.push(`height<=${options.maxResolution}`);
+        }
+        if (options.prefer60fps) {
+          filterParts.push('fps<=60');
+        }
+        if (options.videoCodecPreference && options.videoCodecPreference !== 'any') {
+          filterParts.push(`vcodec^=${options.videoCodecPreference}`);
+        }
+
+        let formatStr = 'bv*+ba/b';
+        if (filterParts.length > 0) {
+          const filter = `[${filterParts.join('][')}]`;
+          formatStr = `bv*${filter}+ba/b${filter}`;
+        }
+
+        args.push('-f', formatStr);
         explanations.push({
           flag: '-f, --format',
-          value: 'bv*+ba/b',
-          description: 'Download best video and best audio, falling back to best pre-merged format'
+          value: formatStr,
+          description: 'Video and audio stream selector based on preferences'
         });
       }
 
@@ -92,7 +142,7 @@ export class CommandBuilderService {
         explanations.push({
           flag: '--merge-output-format',
           value: options.mergeOutputFormat,
-          description: `If a merge is required, output to container format: ${options.mergeOutputFormat}`
+          description: `Container merge format: ${options.mergeOutputFormat}`
         });
       }
     }
@@ -102,7 +152,7 @@ export class CommandBuilderService {
       args.push('--embed-thumbnail');
       explanations.push({
         flag: '--embed-thumbnail',
-        description: 'Embed thumbnail directly in the audio/video container'
+        description: 'Embed thumbnail directly into media container'
       });
     }
 
@@ -110,7 +160,43 @@ export class CommandBuilderService {
       args.push('--embed-metadata');
       explanations.push({
         flag: '--embed-metadata',
-        description: 'Embed metadata (title, artist, date, chapters) into video/audio container'
+        description: 'Embed metadata (title, artist, date, chapters) into container'
+      });
+    }
+
+    if (options.embedChapters) {
+      args.push('--embed-chapters');
+      explanations.push({
+        flag: '--embed-chapters',
+        description: 'Embed chapter markers into the media container'
+      });
+    }
+
+    if (options.splitChapters) {
+      args.push('--split-chapters');
+      explanations.push({
+        flag: '--split-chapters',
+        description: 'Split video into separate files based on internal chapters'
+      });
+    }
+
+    // SponsorBlock
+    if (options.sponsorBlockRemove) {
+      const cats = options.sponsorBlockCategories || 'sponsor,intro,outro,selfpromo';
+      args.push('--sponsorblock-remove', cats);
+      explanations.push({
+        flag: '--sponsorblock-remove',
+        value: cats,
+        description: `Remove sponsor segments matching: ${cats}`
+      });
+    }
+
+    if (options.sponsorBlockMark) {
+      args.push('--sponsorblock-mark', 'all');
+      explanations.push({
+        flag: '--sponsorblock-mark',
+        value: 'all',
+        description: 'Create chapter markers for sponsor segments'
       });
     }
 
@@ -135,7 +221,16 @@ export class CommandBuilderService {
       args.push('--write-auto-subs');
       explanations.push({
         flag: '--write-auto-subs',
-        description: 'Write automatically generated subtitle files if available'
+        description: 'Write automatically generated subtitle tracks'
+      });
+    }
+
+    if (options.convertSubs && options.convertSubs !== 'none') {
+      args.push('--convert-subs', options.convertSubs);
+      explanations.push({
+        flag: '--convert-subs',
+        value: options.convertSubs,
+        description: `Convert subtitle format to: ${options.convertSubs}`
       });
     }
 
@@ -173,7 +268,25 @@ export class CommandBuilderService {
       });
     }
 
-    // Network & Authentication
+    // Network & Performance Acceleration
+    if (options.concurrentFragments && options.concurrentFragments > 1) {
+      args.push('--concurrent-fragments', String(options.concurrentFragments));
+      explanations.push({
+        flag: '--concurrent-fragments',
+        value: String(options.concurrentFragments),
+        description: `Multi-connection download threads: ${options.concurrentFragments}`
+      });
+    }
+
+    if (options.useAria2) {
+      args.push('--downloader', 'aria2c');
+      args.push('--downloader-args', 'aria2c:-x 16 -s 16 -k 1M');
+      explanations.push({
+        flag: '--downloader aria2c',
+        description: 'Accelerate download using external aria2c multi-connection engine'
+      });
+    }
+
     if (options.rateLimit && options.rateLimit.trim().length > 0) {
       args.push('--limit-rate', options.rateLimit.trim());
       explanations.push({
@@ -192,12 +305,13 @@ export class CommandBuilderService {
       });
     }
 
-    if (options.cookiesBrowser && options.cookiesBrowser.trim().length > 0) {
+    // Authentication & Cookies
+    if (options.cookiesBrowser && options.cookiesBrowser.trim().length > 0 && options.cookiesBrowser !== 'none') {
       args.push('--cookies-from-browser', options.cookiesBrowser.trim());
       explanations.push({
         flag: '--cookies-from-browser',
         value: options.cookiesBrowser.trim(),
-        description: `Load session cookies from browser: ${options.cookiesBrowser.trim()}`
+        description: `Extract session cookies from browser: ${options.cookiesBrowser.trim()}`
       });
     }
 
