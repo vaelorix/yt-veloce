@@ -253,17 +253,20 @@ export class DependencyService {
     }
 
     const results: string[] = [];
+    let allSucceeded = true;
     for (const item of missing) {
       try {
         const res = await this.install(item.id);
+        if (!res.success) allSucceeded = false;
         results.push(`${item.name}: ${res.success ? 'Success' : 'Failed'}`);
       } catch (err: any) {
+        allSucceeded = false;
         results.push(`${item.name}: ${err.message}`);
       }
     }
 
     return {
-      success: true,
+      success: allSucceeded,
       message: `Completed dependency install: ${results.join(', ')}`
     };
   }
