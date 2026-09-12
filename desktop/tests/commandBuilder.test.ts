@@ -75,4 +75,43 @@ describe('CommandBuilderService', () => {
     expect(result.args).toContain('--proxy');
     expect(result.args).toContain('socks5://127.0.0.1:9050');
   });
+
+  it('should default to --no-playlist and support --yes-playlist', () => {
+    const defaultResult = service.build({ url: 'https://www.youtube.com/watch?v=single&list=WL' });
+    expect(defaultResult.args).toContain('--no-playlist');
+    expect(defaultResult.args).not.toContain('--yes-playlist');
+
+    const playlistResult = service.build({
+      url: 'https://www.youtube.com/playlist?list=PL123',
+      isPlaylist: true,
+      playlistItems: '1-5'
+    });
+    expect(playlistResult.args).toContain('--yes-playlist');
+    expect(playlistResult.args).toContain('--playlist-items');
+    expect(playlistResult.args).toContain('1-5');
+  });
+
+  it('should include SponsorBlock, Aria2, and fragment acceleration flags', () => {
+    const options: DownloadOptions = {
+      url: 'https://www.youtube.com/watch?v=fast',
+      concurrentFragments: 8,
+      useAria2: true,
+      sponsorBlockRemove: true,
+      sponsorBlockCategories: 'sponsor,intro',
+      splitChapters: true,
+      maxResolution: '1080'
+    };
+
+    const result = service.build(options);
+
+    expect(result.args).toContain('--concurrent-fragments');
+    expect(result.args).toContain('8');
+    expect(result.args).toContain('--downloader');
+    expect(result.args).toContain('aria2c');
+    expect(result.args).toContain('--sponsorblock-remove');
+    expect(result.args).toContain('sponsor,intro');
+    expect(result.args).toContain('--split-chapters');
+    expect(result.args).toContain('-f');
+    expect(result.command).toContain('height<=1080');
+  });
 });
