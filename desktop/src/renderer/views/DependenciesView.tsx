@@ -138,24 +138,35 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
             border: `1px solid ${
               installMessage.includes('error') || installMessage.includes('Failed')
                 ? 'rgba(248, 81, 73, 0.4)'
-                : 'var(--accent-success-border)'
+                : 'rgba(46, 160, 67, 0.4)'
             }`,
             borderRadius: 'var(--radius-md)',
-            fontSize: 12,
             color: installMessage.includes('error') || installMessage.includes('Failed')
               ? 'var(--accent-danger)'
               : 'var(--accent-primary-bright)',
+            fontSize: 13,
             display: 'flex',
             alignItems: 'center',
-            gap: 8
+            justifyContent: 'space-between',
+            gap: 10
           }}
         >
-          {installMessage.includes('error') || installMessage.includes('Failed') ? (
-            <AlertTriangle size={15} />
-          ) : (
-            <Check size={15} />
-          )}
-          <span>{installMessage}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {installMessage.includes('error') || installMessage.includes('Failed') ? (
+              <AlertTriangle size={16} />
+            ) : (
+              <CheckCircle2 size={16} />
+            )}
+            <span>{installMessage}</span>
+          </div>
+          <button
+            onClick={() => setInstallMessage(null)}
+            className="btn-ghost"
+            style={{ padding: 4, cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
+            title="Dismiss"
+          >
+            ×
+          </button>
         </div>
       )}
 
