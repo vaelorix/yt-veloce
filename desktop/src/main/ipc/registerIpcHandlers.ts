@@ -1,4 +1,6 @@
 import { ipcMain, dialog, shell, BrowserWindow } from 'electron';
+import * as fs from 'fs';
+import * as path from 'path';
 import { EngineStatus, DownloadOptions, PresetProfile, AppSettings } from '../../shared/types';
 import { YtDlpService } from '../services/YtDlpService';
 import { FFmpegService } from '../services/FFmpegService';
@@ -138,14 +140,32 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('system:openPath', async (_, filePath: string) => {
     if (!filePath) return false;
-    const res = await shell.openPath(filePath);
-    return res === '';
+    const resolved = db.resolveActualFilePath(filePath) || filePath;
+    if (fs.existsSync(resolved)) {
+      const res = await shell.openPath(resolved);
+      return res === '';
+    }
+    const dir = path.dirname(resolved);
+    if (fs.existsSync(dir)) {
+      const res = await shell.openPath(dir);
+      return res === '';
+    }
+    return false;
   });
 
   ipcMain.handle('system:showItemInFolder', async (_, filePath: string) => {
     if (!filePath) return false;
-    shell.showItemInFolder(filePath);
-    return true;
+    const resolved = db.resolveActualFilePath(filePath) || filePath;
+    if (fs.existsSync(resolved)) {
+      shell.showItemInFolder(resolved);
+      return true;
+    }
+    const dir = path.dirname(resolved);
+    if (fs.existsSync(dir)) {
+      await shell.openPath(dir);
+      return true;
+    }
+    return false;
   });
 
   // --- Logs ---

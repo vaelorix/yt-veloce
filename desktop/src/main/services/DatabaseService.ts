@@ -49,6 +49,7 @@ export class DatabaseService {
     }
 
     this.runMigrations();
+    this.repairCorruptedOutputPaths();
     this.seedDefaultPresets();
     this.persist();
   }
@@ -164,6 +165,50 @@ export class DatabaseService {
           audioFormat: 'flac',
           embedMetadata: true
         }
+      },
+      {
+        id: 'cinema-4k-mkv',
+        name: '4K Cinema Master (AV1/MKV)',
+        description: '2160p resolution with AV1 codec preference, chapter markers, and MKV container',
+        icon: 'sparkles',
+        isBuiltIn: true,
+        options: {
+          maxResolution: '2160p',
+          videoCodecPreference: 'av01',
+          mergeOutputFormat: 'mkv',
+          embedChapters: true,
+          embedThumbnail: true,
+          embedMetadata: true
+        }
+      },
+      {
+        id: 'clean-podcast',
+        name: 'Clean Podcast (SponsorBlock)',
+        description: '320k MP3 extraction with automated removal of sponsor segments & intro fluff',
+        icon: 'shield',
+        isBuiltIn: true,
+        options: {
+          audioOnly: true,
+          audioFormat: 'mp3',
+          audioQuality: '0',
+          sponsorBlockRemove: 'all',
+          embedThumbnail: true,
+          embedMetadata: true
+        }
+      },
+      {
+        id: 'ultra-turbo-16',
+        name: 'Ultra Turbo Acceleration',
+        description: '16-fragment multi-thread streaming with Aria2c high-bandwidth acceleration',
+        icon: 'zap',
+        isBuiltIn: true,
+        options: {
+          concurrentFragments: 16,
+          useAria2: true,
+          mergeOutputFormat: 'mp4',
+          embedThumbnail: true,
+          embedMetadata: true
+        }
       }
     ];
 
@@ -273,11 +318,85 @@ export class DatabaseService {
     return true;
   }
 
+  private repairCorruptedOutputPaths(): void {
+    if (!this.db) return;
+    try {
+      const res = this.db.exec("SELECT id, output_path FROM downloads WHERE output_path LIKE '%.f%'");
+      if (!res[0] || !res[0].values) return;
+      for (const row of res[0].values) {
+        const id = row[0] as string;
+        const outPath = row[1] as string;
+        if (outPath) {
+          const resolved = this.resolveActualFilePath(outPath);
+          if (resolved && resolved !== outPath) {
+            this.db.run("UPDATE downloads SET output_path = ? WHERE id = ?", [resolved, id]);
+            this.logger.info('system', `Repaired job output path for [${id}]: ${resolved}`);
+          }
+        }
+      }
+    } catch (err: any) {
+      this.logger.warn('system', `Failed to repair corrupted output paths: ${err.message}`);
+    }
+  }
+
+  public resolveActualFilePath(filePath?: string): string | undefined {
+    if (!filePath) return undefined;
+    try {
+      if (fs.existsSync(filePath)) {
+        return filePath;
+      }
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) return filePath;
+
+      const filename = path.basename(filePath);
+
+      // Strip intermediate stream tokens e.g. .f251-12.webm
+      const stripped = filename.replace(/\.f\d+(?:-\d+)?(\.[a-z0-9]+)$/i, '$1');
+      const strippedPath = path.join(dir, stripped);
+      if (fs.existsSync(strippedPath)) {
+        return strippedPath;
+      }
+
+      // Check common extensions
+      const baseWithoutExt = stripped.replace(/\.[a-z0-9]+$/i, '');
+      const exts = ['.webm', '.mp4', '.mkv', '.mp3', '.m4a', '.opus', '.wav', '.flac'];
+      for (const ext of exts) {
+        const candidate = path.join(dir, baseWithoutExt + ext);
+        if (fs.existsSync(candidate)) {
+          return candidate;
+        }
+      }
+
+      // Check bracketed ID
+      const idMatch = filename.match(/\[([a-zA-Z0-9_-]{6,15})\]/);
+      if (idMatch) {
+        const videoId = idMatch[1].toLowerCase();
+        const files = fs.readdirSync(dir);
+        const match = files.find(
+          (f) =>
+            f.toLowerCase().includes(`[${videoId}]`) &&
+            !f.match(/\.f\d+(?:-\d+)?\./i) &&
+            !f.endsWith('.part') &&
+            !f.endsWith('.ytdl')
+        );
+        if (match) {
+          return path.join(dir, match);
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return filePath;
+  }
+
   private rowToJob(columns: string[], values: any[]): DownloadJob {
     const row: any = {};
     columns.forEach((col, idx) => {
       row[col] = values[idx];
     });
+
+    const rawOutputPath = row.output_path || undefined;
+    const outputPath = this.resolveActualFilePath(rawOutputPath);
 
     return {
       id: row.id,
@@ -299,7 +418,7 @@ export class DatabaseService {
         statusText: row.status,
         stage: 'queued'
       },
-      outputPath: row.output_path || undefined,
+      outputPath,
       fileSize: row.file_size || undefined,
       createdAt: row.created_at,
       completedAt: row.completed_at || undefined,

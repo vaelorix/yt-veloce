@@ -1,4 +1,6 @@
 import { spawn, ChildProcess } from 'child_process';
+import * as fs from 'fs';
+import * as path from 'path';
 import { DownloadProgress, DownloadStatus } from '../../shared/types';
 import { LoggingService } from './LoggingService';
 import { YtDlpService } from './YtDlpService';
@@ -75,14 +77,17 @@ export class ProcessManager {
         if (line.includes('[AGY_PROG]')) {
           const parsed = this.parseStructuredProgress(line);
           if (parsed) {
-            if (parsed.filename) detectedOutputPath = parsed.filename;
+            if (parsed.filename && !parsed.filename.match(/\.f\d+(?:-\d+)?\./)) {
+              detectedOutputPath = parsed.filename;
+            } else if (!detectedOutputPath && parsed.filename) {
+              detectedOutputPath = parsed.filename;
+            }
             callbacks.onProgress(parsed);
           }
           continue;
         }
 
         // 2. Check fallback standard yt-dlp progress
-        // e.g. [download]  45.2% of 120.50MiB at 4.20MiB/s ETA 00:15
         if (line.startsWith('[download]')) {
           const fallback = this.parseFallbackProgress(line);
           if (fallback) {
@@ -91,12 +96,39 @@ export class ProcessManager {
           // Check for destination filename
           const destMatch = line.match(/\[download\] Destination:\s*(.+)$/i);
           if (destMatch) {
-            detectedOutputPath = destMatch[1].trim();
+            const candidate = destMatch[1].trim();
+            const isIntermediate = /\.f\d+(?:-\d+)?\./i.test(candidate);
+            if (!detectedOutputPath || !isIntermediate) {
+              detectedOutputPath = candidate;
+            }
+          }
+
+          // Check if file has already been downloaded
+          const alreadyMatch = line.match(/\[download\]\s+(.+?)\s+has already been downloaded/i);
+          if (alreadyMatch) {
+            detectedOutputPath = alreadyMatch[1].trim();
           }
           continue;
         }
 
-        // 3. Check post-processing stages
+        // 3. Check post-processing stages: Merger, ExtractAudio, Fixup
+        const mergerMatch = line.match(/\[Merger\]\s+Merging formats into "([^"]+)"/i) ||
+                            line.match(/\[Merger\]\s+Merging formats into\s+(.+)$/i);
+        if (mergerMatch) {
+          detectedOutputPath = mergerMatch[1].trim();
+        }
+
+        const audioMatch = line.match(/\[ExtractAudio\]\s+Destination:\s*(.+)$/i);
+        if (audioMatch) {
+          detectedOutputPath = audioMatch[1].trim();
+        }
+
+        const fixupMatch = line.match(/\[Fixup\w*\]\s+.*?into "([^"]+)"/i) ||
+                           line.match(/\[Fixup\w*\]\s+Destination:\s*(.+)$/i);
+        if (fixupMatch) {
+          detectedOutputPath = fixupMatch[1].trim();
+        }
+
         if (line.startsWith('[Merger]') || line.startsWith('[ExtractAudio]') || line.startsWith('[Fixup]')) {
           callbacks.onProgress({
             percent: 99,
@@ -135,7 +167,8 @@ export class ProcessManager {
       this.runningProcesses.delete(jobId);
 
       if (code === 0) {
-        this.logger.info('download', `Job [${jobId}] completed successfully`, jobId);
+        const finalPath = this.resolveFinalFilePath(detectedOutputPath);
+        this.logger.info('download', `Job [${jobId}] completed successfully, path: ${finalPath || 'unknown'}`, jobId);
         callbacks.onProgress({
           percent: 100,
           downloadedBytes: 0,
@@ -146,9 +179,9 @@ export class ProcessManager {
           etaSeconds: 0,
           statusText: 'Completed',
           stage: 'finished',
-          filename: detectedOutputPath
+          filename: finalPath
         });
-        callbacks.onCompleted(detectedOutputPath);
+        callbacks.onCompleted(finalPath);
       } else {
         this.logger.error('download', `Job [${jobId}] failed with exit code ${code}`, jobId);
         // Extract meaningful error line if present
@@ -264,4 +297,56 @@ export class ProcessManager {
     const s = seconds % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
+
+  public resolveFinalFilePath(filePath?: string): string | undefined {
+    if (!filePath) return undefined;
+    try {
+      if (fs.existsSync(filePath)) {
+        return filePath;
+      }
+
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) return filePath;
+
+      const filename = path.basename(filePath);
+
+      // 1. Strip intermediate stream tokens like .f251-12.webm or .f137.mp4
+      const stripped = filename.replace(/\.f\d+(?:-\d+)?(\.[a-z0-9]+)$/i, '$1');
+      const strippedPath = path.join(dir, stripped);
+      if (fs.existsSync(strippedPath)) {
+        return strippedPath;
+      }
+
+      // 2. Check other common container extensions with clean base
+      const baseWithoutExt = stripped.replace(/\.[a-z0-9]+$/i, '');
+      const mediaExts = ['.mp4', '.webm', '.mkv', '.mp3', '.m4a', '.opus', '.wav', '.flac'];
+      for (const ext of mediaExts) {
+        const candidate = path.join(dir, baseWithoutExt + ext);
+        if (fs.existsSync(candidate)) {
+          return candidate;
+        }
+      }
+
+      // 3. Check for bracketed ID match: e.g. [DJmsXSr1jec]
+      const idMatch = filename.match(/\[([a-zA-Z0-9_-]{6,15})\]/);
+      if (idMatch) {
+        const videoId = idMatch[1].toLowerCase();
+        const files = fs.readdirSync(dir);
+        const match = files.find(
+          (f) =>
+            f.toLowerCase().includes(`[${videoId}]`) &&
+            !f.match(/\.f\d+(?:-\d+)?\./i) &&
+            !f.endsWith('.part') &&
+            !f.endsWith('.ytdl')
+        );
+        if (match) {
+          return path.join(dir, match);
+        }
+      }
+    } catch {
+      // Return original on error
+    }
+    return filePath;
+  }
 }
+
