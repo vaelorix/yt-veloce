@@ -38,6 +38,30 @@
 
 ---
 
+### 📥 Multi-Platform Download & Assets Matrix
+
+| Operating System | Architecture | Package Format | Download Link | Notes |
+|---|---|---|---|---|
+| **Windows** | `x64` (64-bit) | NSIS Setup Executable | [yt-veloce-1.0.0-x64-setup.exe](https://github.com/vaelorix/yt-veloce/releases/latest) | Recommended for most Windows PCs |
+| **Windows** | `x64` (Portable) | Portable Executable | [yt-veloce-1.0.0-x64-portable.exe](https://github.com/vaelorix/yt-veloce/releases/latest) | Zero install (runs from USB/Desktop) |
+| **Windows** | `ia32` (32-bit) | NSIS Setup Executable | [yt-veloce-1.0.0-ia32-setup.exe](https://github.com/vaelorix/yt-veloce/releases/latest) | Legacy 32-bit Windows |
+| **Windows** | `arm64` (ARM) | NSIS Setup Executable | [yt-veloce-1.0.0-arm64-setup.exe](https://github.com/vaelorix/yt-veloce/releases/latest) | Surface Pro & Snapdragon ARM PCs |
+| **Windows** | `x64` (Archive) | ZIP Archive | [yt-veloce-1.0.0-win-x64.zip](https://github.com/vaelorix/yt-veloce/releases/latest) | Manual extraction |
+| **macOS** | Apple Silicon | Apple Disk Image (`.dmg`) | [yt-veloce-1.0.0-arm64.dmg](https://github.com/vaelorix/yt-veloce/releases/latest) | M1 / M2 / M3 / M4 Macs |
+| **macOS** | Intel `x64` | Apple Disk Image (`.dmg`) | [yt-veloce-1.0.0-x64.dmg](https://github.com/vaelorix/yt-veloce/releases/latest) | Intel Macs |
+| **macOS** | Universal | Apple Disk Image (`.dmg`) | [yt-veloce-1.0.0-universal.dmg](https://github.com/vaelorix/yt-veloce/releases/latest) | Universal binary |
+| **macOS** | All | ZIP Archive | [yt-veloce-1.0.0-mac.zip](https://github.com/vaelorix/yt-veloce/releases/latest) | `.app` bundle archive |
+| **Linux** | `x86_64` | Universal AppImage | [yt-veloce-1.0.0-x86_64.AppImage](https://github.com/vaelorix/yt-veloce/releases/latest) | Portable on all Linux distros |
+| **Linux** | `arm64` | Universal AppImage | [yt-veloce-1.0.0-arm64.AppImage](https://github.com/vaelorix/yt-veloce/releases/latest) | ARM64 Linux / Raspberry Pi |
+| **Linux** | `amd64` | Debian / Ubuntu (`.deb`) | [yt-veloce_1.0.0_amd64.deb](https://github.com/vaelorix/yt-veloce/releases/latest) | `sudo dpkg -i yt-veloce*.deb` |
+| **Linux** | `arm64` | Debian / Ubuntu (`.deb`) | [yt-veloce_1.0.0_arm64.deb](https://github.com/vaelorix/yt-veloce/releases/latest) | Debian / Ubuntu ARM |
+| **Linux** | `x86_64` | Red Hat / Fedora (`.rpm`) | [yt-veloce-1.0.0.x86_64.rpm](https://github.com/vaelorix/yt-veloce/releases/latest) | `sudo rpm -i yt-veloce*.rpm` |
+| **Linux** | `x86_64` | Tarball (`.tar.gz`) | [yt-veloce-1.0.0-linux-x64.tar.gz](https://github.com/vaelorix/yt-veloce/releases/latest) | Standalone Linux archive |
+
+> 💡 *All release files include `.blockmap` differential updates and cryptographic SHA-256 checksums on the [Releases Page](https://github.com/vaelorix/yt-veloce/releases).*
+
+---
+
 ### 🛠️ Languages, Frameworks & Toolchains
 
 <p align="left">
