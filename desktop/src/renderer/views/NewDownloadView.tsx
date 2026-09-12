@@ -80,12 +80,21 @@ export const NewDownloadView: React.FC<NewDownloadViewProps> = ({
   };
 
   const handleAnalyze = async () => {
-    if (!url.trim()) return;
+    const trimmed = url.trim();
+    if (!trimmed) return;
+
+    // Validate link format
+    const isUrl = /^https?:\/\//i.test(trimmed) || /^www\./i.test(trimmed);
+    if (!isUrl) {
+      setAnalysisError('Please enter a valid media URL (e.g. https://www.youtube.com/watch?v=...)');
+      return;
+    }
+
     setIsAnalyzing(true);
     setAnalysisError(null);
 
     try {
-      const result = await window.electronAPI.analyzeUrl(url.trim());
+      const result = await window.electronAPI.analyzeUrl(trimmed);
       setMetadata(result);
 
       // Auto-select best streams if available
