@@ -227,13 +227,15 @@ export class YtDlpService {
           ? `${this.workspaceRoot};${process.env.PYTHONPATH || ''}`
           : process.env.PYTHONPATH;
 
+        const isScript = cmd.toLowerCase().endsWith('.cmd') || cmd.toLowerCase().endsWith('.bat');
         const child = spawn(cmd, args, {
           cwd: targetCwd,
           env: {
             ...process.env,
             ...(pythonPath ? { PYTHONPATH: pythonPath } : {})
           },
-          shell: process.platform === 'win32'
+          shell: isScript,
+          stdio: ['ignore', 'pipe', 'pipe']
         });
 
         let stdout = '';
@@ -266,6 +268,7 @@ export class YtDlpService {
     const args = [
       ...argsPrefix,
       '--dump-single-json',
+      '--no-playlist',
       '--no-warnings',
       '--no-check-certificates',
       '--skip-download',
@@ -280,13 +283,15 @@ export class YtDlpService {
         ? `${this.workspaceRoot};${process.env.PYTHONPATH || ''}`
         : process.env.PYTHONPATH;
 
+      const isScript = cmd.toLowerCase().endsWith('.cmd') || cmd.toLowerCase().endsWith('.bat');
       const child = spawn(cmd, args, {
         cwd: targetCwd,
         env: {
           ...process.env,
           ...(pythonPath ? { PYTHONPATH: pythonPath } : {})
         },
-        shell: process.platform === 'win32'
+        shell: isScript,
+        stdio: ['ignore', 'pipe', 'pipe']
       });
 
       let stdout = '';
