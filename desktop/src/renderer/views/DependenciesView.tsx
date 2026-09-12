@@ -45,14 +45,23 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
   const handleInstall = async (id: string) => {
     setInstallingId(id);
     setInstallMessage(null);
+    const timeout = setTimeout(() => {
+      setInstallingId(null);
+      setInstallMessage('Installation request reached client timeout. Refreshing status...');
+      fetchDependencies();
+    }, 45000);
+
     try {
       const res = await window.electronAPI.installDependency(id);
+      clearTimeout(timeout);
       setInstallMessage(res.message);
       await fetchDependencies();
       onRefreshEngine();
     } catch (err: any) {
+      clearTimeout(timeout);
       setInstallMessage(`Installation error: ${err.message}`);
     } finally {
+      clearTimeout(timeout);
       setInstallingId(null);
     }
   };
