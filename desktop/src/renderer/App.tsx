@@ -170,10 +170,15 @@ export const App: React.FC = () => {
     };
   }, [refreshEngine, refreshAllData, inspectedJob]);
 
-  // Handle Theme Attribute on HTML
+  // Handle Theme and Accent Color Attributes on HTML
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    const accent = settings.accentColor || 'emerald';
+    document.documentElement.setAttribute('data-accent', accent);
+  }, [settings.accentColor]);
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -261,6 +266,9 @@ export const App: React.FC = () => {
     setSettings(updated);
     if (newSettings.theme) {
       setTheme(newSettings.theme === 'light' ? 'light' : 'dark');
+    }
+    if (newSettings.accentColor) {
+      document.documentElement.setAttribute('data-accent', newSettings.accentColor);
     }
     if (newSettings.customYtDlpPath !== undefined || newSettings.customFFmpegPath !== undefined) {
       refreshEngine();
