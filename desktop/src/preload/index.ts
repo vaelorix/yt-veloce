@@ -41,6 +41,10 @@ const api: ElectronAPI = {
   getLogs: (filter?: { level?: string; category?: string; jobId?: string }) => ipcRenderer.invoke('logs:get', filter),
   clearLogs: () => ipcRenderer.invoke('logs:clear'),
 
+  // Dependencies
+  getDependencies: () => ipcRenderer.invoke('dependencies:list'),
+  installDependency: (id: string) => ipcRenderer.invoke('dependencies:install', id),
+
   // Events
   onProgress: (callback: (data: { id: string; progress: DownloadProgress }) => void) => {
     const handler = (_: IpcRendererEvent, data: { id: string; progress: DownloadProgress }) => callback(data);

@@ -223,11 +223,26 @@ export interface ElectronAPI {
   // Logs
   getLogs: (filter?: { level?: string; category?: string; jobId?: string }) => Promise<LogEntry[]>;
   clearLogs: () => Promise<boolean>;
+
+  // Dependencies
+  getDependencies: () => Promise<DependencyItem[]>;
+  installDependency: (id: string) => Promise<{ success: boolean; message: string }>;
   
   // Events
   onProgress: (callback: (data: { id: string; progress: DownloadProgress }) => void) => () => void;
   onJobStatusChange: (callback: (data: { id: string; status: DownloadStatus; error?: string }) => void) => () => void;
   onLogEntry: (callback: (log: LogEntry) => void) => () => void;
+}
+
+export interface DependencyItem {
+  id: 'ytdlp' | 'ffmpeg' | 'ffprobe' | 'python';
+  name: string;
+  description: string;
+  category: 'core' | 'media' | 'runtime';
+  status: 'installed' | 'missing' | 'installing' | 'error';
+  version: string | null;
+  path: string | null;
+  requiredFor: string;
 }
 
 declare global {

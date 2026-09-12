@@ -6,6 +6,7 @@ import { DatabaseService } from '../services/DatabaseService';
 import { DownloadManager } from '../services/DownloadManager';
 import { CommandBuilderService } from '../services/CommandBuilderService';
 import { LoggingService } from '../services/LoggingService';
+import { DependencyService } from '../services/DependencyService';
 
 export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   const ytdlpService = YtDlpService.getInstance();
@@ -155,5 +156,15 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   ipcMain.handle('logs:clear', async () => {
     logger.clear();
     return true;
+  });
+
+  // --- Dependencies ---
+  const dependencyService = DependencyService.getInstance();
+  ipcMain.handle('dependencies:list', async () => {
+    return dependencyService.getStatus();
+  });
+
+  ipcMain.handle('dependencies:install', async (_, name: string) => {
+    return dependencyService.install(name);
   });
 }
