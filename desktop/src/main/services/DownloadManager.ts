@@ -65,6 +65,21 @@ export class DownloadManager {
       duration = metadata.duration;
     }
 
+    const effectiveOptions: DownloadOptions = {
+      ...options,
+      outputDir: options.outputDir || settings.defaultOutputDir,
+      filenameTemplate: options.filenameTemplate || settings.filenameTemplate,
+      proxy: options.proxy || settings.proxyUrl || undefined,
+      rateLimit: options.rateLimit || settings.defaultRateLimit || undefined,
+      cookiesBrowser: options.cookiesBrowser || settings.browserCookies || undefined,
+      concurrentFragments: options.concurrentFragments ?? settings.concurrentFragments,
+      embedThumbnail: options.embedThumbnail !== undefined ? options.embedThumbnail : settings.embedThumbnail,
+      embedSubtitles: options.embedSubtitles !== undefined ? options.embedSubtitles : settings.embedSubtitles,
+      sponsorBlockRemove: options.sponsorBlockRemove !== undefined ? options.sponsorBlockRemove : (settings.sponsorBlockMode === 'remove'),
+      sponsorBlockMark: options.sponsorBlockMark !== undefined ? options.sponsorBlockMark : (settings.sponsorBlockMode === 'mark'),
+      retries: options.retries ?? settings.autoRetryCount
+    };
+
     const job: DownloadJob = {
       id,
       url: options.url,
@@ -72,7 +87,7 @@ export class DownloadManager {
       thumbnail,
       uploader,
       duration,
-      options,
+      options: effectiveOptions,
       status: 'queued',
       progress: {
         percent: 0,
