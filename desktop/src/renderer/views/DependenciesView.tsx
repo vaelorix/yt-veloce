@@ -12,7 +12,8 @@ import {
   Sparkles,
   ExternalLink,
   ShieldCheck,
-  Check
+  Check,
+  Zap
 } from 'lucide-react';
 
 interface DependenciesViewProps {
@@ -73,30 +74,30 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
       >
         <div>
           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
-            System Dependencies
+            System Dependencies & Toolchains
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            Status of backend binaries, media conversion tools, and execution environments
+            Verify yt-dlp core, FFmpeg encoders, Python runtime, and stream accelerators
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {missingCount > 0 && (
             <button
-              onClick={() => handleInstall('ffmpeg')}
+              onClick={() => handleInstall('all')}
               disabled={installingId !== null}
               className="btn-primary"
               style={{ padding: '6px 16px', fontSize: 12 }}
             >
-              {installingId ? (
+              {installingId === 'all' ? (
                 <>
                   <RotateCw size={13} className="animate-spin" />
-                  <span>Installing...</span>
+                  <span>Installing All...</span>
                 </>
               ) : (
                 <>
                   <Download size={13} />
-                  <span>Install Missing Dependencies</span>
+                  <span>Install All Missing</span>
                 </>
               )}
             </button>
@@ -122,19 +123,29 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
         <div
           style={{
             padding: '10px 14px',
-            backgroundColor: installMessage.includes('error')
+            backgroundColor: installMessage.includes('error') || installMessage.includes('Failed')
               ? 'var(--accent-danger-glow)'
               : 'var(--accent-primary-glow)',
-            border: `1px solid ${installMessage.includes('error') ? 'rgba(248, 81, 73, 0.4)' : 'var(--accent-success-border)'}`,
+            border: `1px solid ${
+              installMessage.includes('error') || installMessage.includes('Failed')
+                ? 'rgba(248, 81, 73, 0.4)'
+                : 'var(--accent-success-border)'
+            }`,
             borderRadius: 'var(--radius-md)',
             fontSize: 12,
-            color: installMessage.includes('error') ? 'var(--accent-danger)' : 'var(--accent-primary-bright)',
+            color: installMessage.includes('error') || installMessage.includes('Failed')
+              ? 'var(--accent-danger)'
+              : 'var(--accent-primary-bright)',
             display: 'flex',
             alignItems: 'center',
             gap: 8
           }}
         >
-          {installMessage.includes('error') ? <AlertTriangle size={15} /> : <Check size={15} />}
+          {installMessage.includes('error') || installMessage.includes('Failed') ? (
+            <AlertTriangle size={15} />
+          ) : (
+            <Check size={15} />
+          )}
           <span>{installMessage}</span>
         </div>
       )}
@@ -147,7 +158,7 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
           justifyContent: 'space-between',
           alignItems: 'center',
           gap: 16,
-          backgroundColor: '#161b22',
+          backgroundColor: 'var(--bg-surface)',
           borderColor: missingCount === 0 ? 'var(--accent-success-border)' : 'rgba(210, 153, 34, 0.4)',
           padding: '14px 18px'
         }}
@@ -171,25 +182,25 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
           <div>
             <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
               {missingCount === 0
-                ? 'All Core Dependencies Installed & Verified'
-                : `${missingCount} Optional Dependency Action Recommended`}
+                ? 'All Core & Multimedia Dependencies Verified'
+                : `${missingCount} Component${missingCount > 1 ? 's' : ''} Missing`}
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
               {missingCount === 0
-                ? 'High-resolution 4K/1080p merging, stream muxing, and format conversion are fully functional.'
-                : 'FFmpeg is required to merge separate video and audio streams into single MP4/MKV files.'}
+                ? 'yt-dlp stream analyzer, FFmpeg stream merger, and Python 3 are active and ready.'
+                : 'Click "Auto-Install All Missing" to download and configure required toolchains automatically.'}
             </div>
           </div>
         </div>
 
         {missingCount > 0 && (
           <button
-            onClick={() => handleInstall('ffmpeg')}
+            onClick={() => handleInstall('all')}
             disabled={installingId !== null}
             className="btn-primary"
             style={{ fontSize: 12, padding: '6px 14px' }}
           >
-            Auto-Install FFmpeg
+            {installingId ? 'Installing...' : 'Auto-Install All'}
           </button>
         )}
       </div>
@@ -198,7 +209,7 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {dependencies.map((dep) => {
           const isInstalled = dep.status === 'installed';
-          const isInstalling = installingId === dep.id;
+          const isInstalling = installingId === dep.id || (installingId === 'all' && !isInstalled);
 
           return (
             <div
@@ -230,6 +241,8 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
                     <Film size={18} />
                   ) : dep.category === 'core' ? (
                     <Download size={18} />
+                  ) : dep.category === 'accelerator' ? (
+                    <Zap size={18} />
                   ) : (
                     <Cpu size={18} />
                   )}
@@ -252,7 +265,7 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
                           fontSize: 11,
                           fontFamily: 'var(--font-mono)',
                           color: 'var(--text-muted)',
-                          backgroundColor: '#161b22',
+                          backgroundColor: 'var(--bg-card-subtle)',
                           padding: '1px 6px',
                           borderRadius: 4,
                           border: '1px solid var(--border-light)'
@@ -274,11 +287,12 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
                       marginTop: 4,
                       display: 'flex',
                       gap: 8,
-                      alignItems: 'center'
+                      alignItems: 'center',
+                      flexWrap: 'wrap'
                     }}
                   >
                     <span>
-                      <strong>Required for:</strong> {dep.requiredFor}
+                      <strong>Used for:</strong> {dep.requiredFor}
                     </span>
                     {dep.path && (
                       <>
@@ -289,7 +303,7 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
                             color: 'var(--text-muted)',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            maxWidth: 320
+                            maxWidth: 340
                           }}
                           title={dep.path}
                         >
@@ -306,7 +320,7 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
                 {!isInstalled && (
                   <button
                     onClick={() => handleInstall(dep.id)}
-                    disabled={isInstalling}
+                    disabled={isInstalling || installingId !== null}
                     className="btn-primary"
                     style={{ fontSize: 12, padding: '5px 14px' }}
                   >
@@ -324,10 +338,10 @@ export const DependenciesView: React.FC<DependenciesViewProps> = ({ onRefreshEng
                   </button>
                 )}
 
-                {isInstalled && dep.id === 'ytdlp' && (
+                {isInstalled && (dep.id === 'ytdlp' || dep.id === 'ffmpeg') && (
                   <button
-                    onClick={() => handleInstall('ytdlp')}
-                    disabled={isInstalling}
+                    onClick={() => handleInstall(dep.id)}
+                    disabled={isInstalling || installingId !== null}
                     className="btn-secondary"
                     style={{ fontSize: 12, padding: '5px 12px' }}
                     title="Check for upstream updates"

@@ -242,10 +242,10 @@ export interface ElectronAPI {
 }
 
 export interface DependencyItem {
-  id: 'ytdlp' | 'ffmpeg' | 'ffprobe' | 'python';
+  id: 'ytdlp' | 'ffmpeg' | 'ffprobe' | 'python' | 'atomicparsley' | 'aria2';
   name: string;
   description: string;
-  category: 'core' | 'media' | 'runtime';
+  category: 'core' | 'media' | 'runtime' | 'accelerator';
   status: 'installed' | 'missing' | 'installing' | 'error';
   version: string | null;
   path: string | null;
