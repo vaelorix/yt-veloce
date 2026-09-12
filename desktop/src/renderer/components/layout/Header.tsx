@@ -2,15 +2,12 @@ import React, { useState } from 'react';
 import { EngineStatus } from '../../../shared/types';
 import { NavView } from './Sidebar';
 import {
-  Play,
-  Square,
   Search,
-  CheckCircle2,
-  AlertCircle,
-  Sun,
-  Moon,
-  Zap,
-  ChevronDown
+  PlusCircle,
+  Activity,
+  ArrowDownCircle,
+  Layers,
+  Sparkles
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -35,17 +32,31 @@ export const Header: React.FC<HeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   const titles: Record<NavView, string> = {
-    dashboard: 'Dashboard',
-    'new-download': 'New Download',
-    queue: 'Download Queue',
+    dashboard: 'Dashboard Overview',
+    'new-download': 'New Media Download',
+    queue: 'Active Download Queue',
     history: 'Download History',
-    'format-explorer': 'Format Explorer',
-    presets: 'Presets & Profiles',
-    'command-builder': 'Command Builder',
-    dependencies: 'System Dependencies',
-    logs: 'Logs & Diagnostics',
-    settings: 'Settings',
-    about: 'About'
+    'format-explorer': 'Media Format Matrix',
+    presets: 'Presets & Custom Profiles',
+    'command-builder': 'CLI Command Studio',
+    dependencies: 'System Dependencies & Tools',
+    logs: 'Logs & Engine Diagnostics',
+    settings: 'Application Preferences',
+    about: 'About Veloce yt-dlp'
+  };
+
+  const descriptions: Record<NavView, string> = {
+    dashboard: 'Real-time metrics, quick downloader, and performance statistics',
+    'new-download': 'Analyze media streams, configure codecs, and queue downloads',
+    queue: 'Manage running, queued, and paused media conversions',
+    history: 'Offline download archive, completed media files, and redownloads',
+    'format-explorer': 'Deep inspection of video resolutions, audio bitrates, and codecs',
+    presets: 'Create, edit, and export tailored conversion profiles',
+    'command-builder': 'Inspect and generate exact yt-dlp command lines for CLI scripts',
+    dependencies: 'Status of backend binaries, FFmpeg, and multimedia toolchains',
+    logs: 'Real-time streaming console output from yt-dlp and ffmpeg processes',
+    settings: 'Custom paths, default directories, concurrency, and appearance',
+    about: 'Version information, open-source acknowledgements, and credits'
   };
 
   const isDownloading = activeCount > 0;
@@ -54,111 +65,101 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       style={{
         height: 'var(--header-height)',
-        padding: '0 16px',
+        padding: '0 20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         borderBottom: '1px solid var(--border-subtle)',
         backgroundColor: 'var(--bg-header)',
         zIndex: 10,
-        gap: 12,
+        gap: 16,
         userSelect: 'none'
       }}
     >
-      {/* Left / Center Workflow Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        {/* Preset Selector Dropdown Button (matching Screenshot 1) */}
-        <button
-          onClick={onNewDownloadClick}
-          className="btn-secondary"
-          style={{
-            padding: '5px 10px',
-            fontSize: 12,
-            gap: 6,
-            height: 30,
-            borderRadius: 'var(--radius-md)'
-          }}
-          title="Quick profile selector"
-        >
-          <Zap size={13} color="var(--accent-primary-bright)" />
-          <span style={{ fontWeight: 500 }}>Best Quality (MP4)</span>
-          <ChevronDown size={12} color="var(--text-muted)" />
-        </button>
-
-        {/* Action Button: Vibrant Green Run / Stop Button */}
-        <button
-          onClick={onNewDownloadClick}
-          className={isDownloading ? 'btn-danger' : 'btn-primary'}
-          style={{
-            padding: '5px 14px',
-            fontSize: 12,
-            fontWeight: 600,
-            height: 30,
-            borderRadius: 'var(--radius-md)',
-            gap: 6
-          }}
-        >
-          {isDownloading ? (
-            <>
-              <Square size={12} fill="currentColor" />
-              <span>Stop</span>
-            </>
-          ) : (
-            <>
-              <Play size={12} fill="currentColor" />
-              <span>Run</span>
-            </>
-          )}
-        </button>
-
-        {/* State Metrics (matching Screenshot 1: State: idle / Elapsed: —) */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            fontSize: 12,
-            marginLeft: 4,
-            color: 'var(--text-muted)'
-          }}
-        >
-          <div>
-            State:{' '}
-            <span
-              style={{
-                color: isDownloading ? 'var(--accent-primary-bright)' : 'var(--text-primary)',
-                fontWeight: 600
-              }}
-            >
-              {isDownloading ? 'active' : 'idle'}
-            </span>
+      {/* Left Title & Status Area */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              color: 'var(--text-primary)',
+              letterSpacing: -0.2,
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {titles[currentView] || 'Workspace'}
           </div>
-
-          {isDownloading && totalSpeed && totalSpeed !== '0 B/s' ? (
-            <div>
-              Speed:{' '}
-              <span style={{ color: 'var(--accent-primary-bright)', fontWeight: 600 }}>
-                {totalSpeed}
-              </span>
-            </div>
-          ) : (
-            <div>
-              Elapsed: <span style={{ color: 'var(--text-secondary)' }}>—</span>
-            </div>
-          )}
-
-          <div>
-            Active:{' '}
-            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-              {activeCount}
-            </span>
+          <div
+            style={{
+              fontSize: 11,
+              color: 'var(--text-muted)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}
+          >
+            {descriptions[currentView] || 'Control panel'}
           </div>
         </div>
+
+        {/* Live Active Downloads Pill */}
+        {isDownloading && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '4px 10px',
+              borderRadius: 'var(--radius-full)',
+              backgroundColor: 'var(--accent-primary-glow)',
+              border: '1px solid var(--accent-success-border)',
+              fontSize: 12,
+              color: 'var(--accent-primary-bright)',
+              flexShrink: 0
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-primary-bright)',
+                boxShadow: '0 0 6px rgba(63, 185, 80, 0.8)'
+              }}
+              className="animate-pulse"
+            />
+            <span style={{ fontWeight: 600 }}>{activeCount} downloading</span>
+            {totalSpeed && totalSpeed !== '0 B/s' && (
+              <>
+                <span>•</span>
+                <span style={{ fontFamily: 'var(--font-mono)' }}>{totalSpeed}</span>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Right Tools & Environment Badges */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        {/* Search or Command Box (matching Screenshot 1 & 4) */}
+      {/* Right Controls & Quick Search */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        {/* Quick New Download Button when in other views */}
+        {currentView !== 'new-download' && (
+          <button
+            onClick={onNewDownloadClick}
+            className="btn-primary"
+            style={{
+              padding: '5px 12px',
+              fontSize: 12,
+              height: 28,
+              gap: 6
+            }}
+          >
+            <PlusCircle size={13} />
+            <span>New Download</span>
+          </button>
+        )}
+
+        {/* Search Input Box */}
         <div
           style={{
             position: 'relative',
@@ -178,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({
           />
           <input
             type="text"
-            placeholder="Search or run..."
+            placeholder="Search or jump to..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
@@ -200,8 +201,8 @@ export const Header: React.FC<HeaderProps> = ({
               right: 6,
               fontSize: 10,
               color: 'var(--text-muted)',
-              backgroundColor: '#161b22',
-              border: '1px solid #30363d',
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-light)',
               padding: '1px 4px',
               borderRadius: 3,
               pointerEvents: 'none'
@@ -211,53 +212,37 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
         </div>
 
-        {/* Engine / Python Badge (matching Python 3.11.6 badge in screenshot 1) */}
-        <div
-          style={{
-            height: 28,
-            padding: '0 10px',
-            backgroundColor: '#161b22',
-            border: '1px solid #30363d',
-            borderRadius: 'var(--radius-md)',
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: 11,
-            fontFamily: 'var(--font-mono)',
-            color: 'var(--text-secondary)'
-          }}
-          title={engineStatus?.ytdlpSource || 'yt-dlp Engine'}
-        >
-          {engineStatus?.ytdlpVersion
-            ? `yt-dlp ${engineStatus.ytdlpVersion}`
-            : 'yt-dlp Ready'}
-        </div>
-
-        {/* Connection Status Badge (matching ● Connected badge in screenshot 1) */}
+        {/* Engine Status Badge */}
         <div
           style={{
             height: 28,
             padding: '0 10px',
             backgroundColor: engineStatus?.ytdlpAvailable
-              ? 'rgba(46, 160, 67, 0.15)'
-              : 'rgba(248, 81, 73, 0.15)',
+              ? 'var(--accent-primary-glow)'
+              : 'var(--accent-danger-glow)',
             border: engineStatus?.ytdlpAvailable
-              ? '1px solid rgba(63, 185, 80, 0.4)'
+              ? '1px solid var(--accent-success-border)'
               : '1px solid rgba(248, 81, 73, 0.4)',
             borderRadius: 'var(--radius-md)',
             display: 'flex',
             alignItems: 'center',
             gap: 6,
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: 500,
             color: engineStatus?.ytdlpAvailable
               ? 'var(--accent-primary-bright)'
               : 'var(--accent-danger)'
           }}
+          title={
+            engineStatus?.ytdlpAvailable
+              ? `yt-dlp Engine Ready (${engineStatus.ytdlpVersion || 'Active'})`
+              : 'yt-dlp Engine Not Detected'
+          }
         >
           <span
             style={{
-              width: 7,
-              height: 7,
+              width: 6,
+              height: 6,
               borderRadius: '50%',
               backgroundColor: engineStatus?.ytdlpAvailable
                 ? 'var(--accent-primary-bright)'
@@ -267,18 +252,8 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'none'
             }}
           />
-          <span>{engineStatus?.ytdlpAvailable ? 'Connected' : 'Disconnected'}</span>
+          <span>{engineStatus?.ytdlpAvailable ? 'Engine Online' : 'Engine Offline'}</span>
         </div>
-
-        {/* Theme Toggle Icon */}
-        <button
-          onClick={onToggleTheme}
-          className="btn-icon"
-          title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
-          style={{ width: 28, height: 28, padding: 0 }}
-        >
-          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-        </button>
       </div>
     </header>
   );
