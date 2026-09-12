@@ -16,7 +16,6 @@ interface HeaderProps {
   totalSpeed: string;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
-  onNewDownloadClick: () => void;
   activeCount?: number;
 }
 
@@ -26,7 +25,6 @@ export const Header: React.FC<HeaderProps> = ({
   totalSpeed,
   theme,
   onToggleTheme,
-  onNewDownloadClick,
   activeCount = 0
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -142,23 +140,6 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right Controls & Quick Search */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        {/* Quick New Download Button when in other views */}
-        {currentView !== 'new-download' && (
-          <button
-            onClick={onNewDownloadClick}
-            className="btn-primary"
-            style={{
-              padding: '5px 12px',
-              fontSize: 12,
-              height: 28,
-              gap: 6
-            }}
-          >
-            <PlusCircle size={13} />
-            <span>New Download</span>
-          </button>
-        )}
-
         {/* Search Input Box */}
         <div
           style={{
