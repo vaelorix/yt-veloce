@@ -20,6 +20,85 @@ export class DependencyService {
     return DependencyService.instance;
   }
 
+  public findExecutable(toolName: string): string | null {
+    const isWin = process.platform === 'win32';
+    const exeName = isWin ? `${toolName}.exe` : toolName;
+
+    // 1. Check WinGet Packages directory
+    const localAppData = process.env.LOCALAPPDATA || '';
+    if (localAppData && isWin) {
+      const wingetPackages = path.join(localAppData, 'Microsoft', 'WinGet', 'Packages');
+      if (fs.existsSync(wingetPackages)) {
+        try {
+          const dirs = fs.readdirSync(wingetPackages);
+          for (const dir of dirs) {
+            if (dir.toLowerCase().includes(toolName.toLowerCase())) {
+              const packageDir = path.join(wingetPackages, dir);
+              const found = this.searchExecutableRecursive(packageDir, toolName, 2);
+              if (found) return found;
+            }
+          }
+        } catch {}
+      }
+
+      // Check WinGet Links
+      const wingetLinks = path.join(localAppData, 'Microsoft', 'WinGet', 'Links');
+      if (fs.existsSync(wingetLinks)) {
+        const candidate = path.join(wingetLinks, exeName);
+        if (fs.existsSync(candidate)) return candidate;
+      }
+    }
+
+    // 2. Check standard installation folders
+    const programFiles = process.env.ProgramFiles || 'C:\\Program Files';
+    const programFilesX86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)';
+    const userProfile = process.env.USERPROFILE || '';
+    const candidates = [
+      path.join(programFiles, toolName, exeName),
+      path.join(programFilesX86, toolName, exeName),
+      path.join(localAppData, 'Programs', toolName, exeName),
+      path.join(userProfile, 'scoop', 'apps', toolName, 'current', exeName),
+      path.join(process.env.ChocolateyInstall || 'C:\\ProgramData\\chocolatey', 'bin', exeName)
+    ];
+
+    for (const c of candidates) {
+      if (fs.existsSync(c)) return c;
+    }
+
+    return null;
+  }
+
+  private searchExecutableRecursive(dir: string, toolName: string, maxDepth: number): string | null {
+    if (maxDepth < 0) return null;
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        const nameLower = entry.name.toLowerCase();
+        if (
+          entry.isFile() &&
+          nameLower.startsWith(toolName.toLowerCase()) &&
+          (nameLower.endsWith('.exe') || !nameLower.includes('.'))
+        ) {
+          return full;
+        } else if (entry.isDirectory()) {
+          const res = this.searchExecutableRecursive(full, toolName, maxDepth - 1);
+          if (res) return res;
+        }
+      }
+    } catch {}
+    return null;
+  }
+
+  private ensureDirInPath(exePath: string): void {
+    if (!exePath || !path.isAbsolute(exePath)) return;
+    const dir = path.dirname(exePath);
+    if (process.env.PATH && !process.env.PATH.includes(dir)) {
+      process.env.PATH = `${dir};${process.env.PATH}`;
+      this.logger.info('system', `Appended ${dir} to active PATH`);
+    }
+  }
+
   public async getStatus(): Promise<DependencyItem[]> {
     const ytdlp = await YtDlpService.getInstance().detect();
     const ffmpeg = await FFmpegService.getInstance().detect();
@@ -38,23 +117,37 @@ export class DependencyService {
     // 2. AtomicParsley check
     let apVersion: string | null = null;
     let apPath: string | null = null;
+    const apExe = this.findExecutable('AtomicParsley') || 'AtomicParsley';
     try {
-      const out = await this.probeCommand('AtomicParsley', ['--version']);
+      const out = await this.probeCommand(apExe, ['-v']);
       if (out) {
-        apVersion = out.trim().split('\n')[0];
-        apPath = 'System PATH';
+        const match = out.match(/AtomicParsley version:\s*([^\s]+)/i);
+        apVersion = match ? match[1] : out.trim().split('\n')[0];
+        apPath = path.isAbsolute(apExe) ? apExe : 'System PATH';
+        this.ensureDirInPath(apExe);
       }
-    } catch {}
+    } catch {
+      try {
+        const out = await this.probeCommand(apExe, ['--version']);
+        if (out) {
+          apVersion = out.trim().split('\n')[0];
+          apPath = path.isAbsolute(apExe) ? apExe : 'System PATH';
+          this.ensureDirInPath(apExe);
+        }
+      } catch {}
+    }
 
     // 3. Aria2c check
     let ariaVersion: string | null = null;
     let ariaPath: string | null = null;
+    const ariaExe = this.findExecutable('aria2c') || this.findExecutable('aria2') || 'aria2c';
     try {
-      const out = await this.probeCommand('aria2c', ['--version']);
+      const out = await this.probeCommand(ariaExe, ['-v']);
       if (out) {
         const match = out.match(/aria2 version\s+([^\s]+)/i);
         ariaVersion = match ? match[1] : 'installed';
-        ariaPath = 'System PATH';
+        ariaPath = path.isAbsolute(ariaExe) ? ariaExe : 'System PATH';
+        this.ensureDirInPath(ariaExe);
       }
     } catch {}
 
@@ -176,48 +269,51 @@ export class DependencyService {
   }
 
   private async installFFmpeg(): Promise<{ success: boolean; message: string }> {
+    const existing = await FFmpegService.getInstance().detect();
+    if (existing.available) {
+      return { success: true, message: `FFmpeg already installed (${existing.version})` };
+    }
+
     return new Promise((resolve) => {
       this.logger.info('ffmpeg', 'Attempting installation of FFmpeg via Windows Package Manager (winget)...');
 
+      let resolved = false;
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          try { proc.kill('SIGTERM'); } catch {}
+          resolve({ success: false, message: 'FFmpeg installation timed out.' });
+        }
+      }, 45000);
+
       const proc = spawn(
         'winget',
-        ['install', '--id', 'Gyan.FFmpeg', '-e', '--accept-source-agreements', '--accept-package-agreements'],
-        { shell: true }
+        ['install', '--id', 'Gyan.FFmpeg', '-e', '--accept-source-agreements', '--accept-package-agreements', '--disable-interactivity', '--silent'],
+        { shell: true, stdio: ['ignore', 'pipe', 'pipe'] }
       );
 
-      let output = '';
-      proc.stdout?.on('data', (d) => {
-        const text = d.toString();
-        output += text;
-        this.logger.info('ffmpeg', text.trim());
-      });
-
-      proc.stderr?.on('data', (d) => {
-        const text = d.toString();
-        output += text;
-        this.logger.warn('ffmpeg', text.trim());
-      });
-
       proc.on('close', async (code) => {
-        const info = await FFmpegService.getInstance().detect();
-        if (info.available) {
-          this.logger.info('ffmpeg', `FFmpeg installed and verified successfully: ${info.version}`);
-          resolve({ success: true, message: `FFmpeg successfully installed (${info.version})` });
-        } else if (code === 0) {
-          resolve({
-            success: true,
-            message: 'FFmpeg installed. You may need to restart the application for system PATH to refresh.'
-          });
-        } else {
-          resolve({
-            success: false,
-            message: `winget returned exit code ${code}. Please verify winget or place ffmpeg in system PATH.`
-          });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          const info = await FFmpegService.getInstance().detect();
+          if (info.available) {
+            resolve({ success: true, message: `FFmpeg successfully installed (${info.version})` });
+          } else {
+            resolve({
+              success: code === 0,
+              message: code === 0 ? 'FFmpeg installed.' : `winget returned exit code ${code}`
+            });
+          }
         }
       });
 
       proc.on('error', (err) => {
-        resolve({ success: false, message: `Failed to launch installer: ${err.message}` });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve({ success: false, message: `Failed to launch installer: ${err.message}` });
+        }
       });
     });
   }
@@ -225,64 +321,141 @@ export class DependencyService {
   private async installYtDlp(): Promise<{ success: boolean; message: string }> {
     return new Promise((resolve) => {
       this.logger.info('yt-dlp', 'Installing/updating yt-dlp via python pip...');
-      const proc = spawn('python', ['-m', 'pip', 'install', '--upgrade', 'yt-dlp'], { shell: true });
+      let resolved = false;
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          try { proc.kill('SIGTERM'); } catch {}
+          resolve({ success: false, message: 'yt-dlp install timed out.' });
+        }
+      }, 45000);
+
+      const proc = spawn('python', ['-m', 'pip', 'install', '--upgrade', 'yt-dlp'], {
+        shell: true,
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
 
       proc.on('close', async (code) => {
-        const ytdlp = await YtDlpService.getInstance().detect();
-        if (ytdlp.source !== 'none') {
-          this.logger.info('yt-dlp', `yt-dlp is now available: ${ytdlp.version} (${ytdlp.path})`);
-          resolve({ success: true, message: `yt-dlp successfully installed/updated to ${ytdlp.version}` });
-        } else {
-          resolve({ success: false, message: `pip exited with code ${code}` });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          const ytdlp = await YtDlpService.getInstance().detect();
+          if (ytdlp.source !== 'none') {
+            resolve({ success: true, message: `yt-dlp successfully installed/updated to ${ytdlp.version}` });
+          } else {
+            resolve({ success: false, message: `pip exited with code ${code}` });
+          }
         }
       });
 
       proc.on('error', (err) => {
-        resolve({ success: false, message: `Failed to launch pip: ${err.message}` });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve({ success: false, message: `Failed to launch pip: ${err.message}` });
+        }
       });
     });
   }
 
   private async installAtomicParsley(): Promise<{ success: boolean; message: string }> {
+    const existing = this.findExecutable('AtomicParsley');
+    if (existing) {
+      this.ensureDirInPath(existing);
+      return { success: true, message: 'AtomicParsley already installed and verified.' };
+    }
+
     return new Promise((resolve) => {
       this.logger.info('system', 'Installing AtomicParsley via winget...');
+      let resolved = false;
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          try { proc.kill('SIGTERM'); } catch {}
+          resolve({ success: false, message: 'AtomicParsley installation timed out.' });
+        }
+      }, 40000);
+
       const proc = spawn(
         'winget',
-        ['install', '--id', 'wez.atomicparsley', '-e', '--accept-source-agreements', '--accept-package-agreements'],
-        { shell: true }
+        ['install', '--id', 'wez.atomicparsley', '-e', '--accept-source-agreements', '--accept-package-agreements', '--disable-interactivity', '--silent'],
+        { shell: true, stdio: ['ignore', 'pipe', 'pipe'] }
       );
 
       proc.on('close', (code) => {
-        resolve({
-          success: code === 0,
-          message: code === 0 ? 'AtomicParsley installed successfully.' : `winget exited with code ${code}`
-        });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          const found = this.findExecutable('AtomicParsley');
+          if (found) {
+            this.ensureDirInPath(found);
+            resolve({ success: true, message: 'AtomicParsley installed successfully.' });
+          } else {
+            resolve({
+              success: code === 0,
+              message: code === 0 ? 'AtomicParsley installed successfully.' : `winget exited with code ${code}`
+            });
+          }
+        }
       });
 
       proc.on('error', (err) => {
-        resolve({ success: false, message: `Failed to launch winget: ${err.message}` });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve({ success: false, message: `Failed to launch winget: ${err.message}` });
+        }
       });
     });
   }
 
   private async installAria2(): Promise<{ success: boolean; message: string }> {
+    const existing = this.findExecutable('aria2c') || this.findExecutable('aria2');
+    if (existing) {
+      this.ensureDirInPath(existing);
+      return { success: true, message: 'Aria2c already installed and verified.' };
+    }
+
     return new Promise((resolve) => {
       this.logger.info('system', 'Installing Aria2 via winget...');
+      let resolved = false;
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          try { proc.kill('SIGTERM'); } catch {}
+          resolve({ success: false, message: 'Aria2 installation timed out.' });
+        }
+      }, 40000);
+
       const proc = spawn(
         'winget',
-        ['install', '--id', 'aria2.aria2', '-e', '--accept-source-agreements', '--accept-package-agreements'],
-        { shell: true }
+        ['install', '--id', 'aria2.aria2', '-e', '--accept-source-agreements', '--accept-package-agreements', '--disable-interactivity', '--silent'],
+        { shell: true, stdio: ['ignore', 'pipe', 'pipe'] }
       );
 
       proc.on('close', (code) => {
-        resolve({
-          success: code === 0,
-          message: code === 0 ? 'Aria2 installed successfully.' : `winget exited with code ${code}`
-        });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          const found = this.findExecutable('aria2c') || this.findExecutable('aria2');
+          if (found) {
+            this.ensureDirInPath(found);
+            resolve({ success: true, message: 'Aria2 installed successfully.' });
+          } else {
+            resolve({
+              success: code === 0,
+              message: code === 0 ? 'Aria2 installed successfully.' : `winget exited with code ${code}`
+            });
+          }
+        }
       });
 
       proc.on('error', (err) => {
-        resolve({ success: false, message: `Failed to launch winget: ${err.message}` });
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve({ success: false, message: `Failed to launch winget: ${err.message}` });
+        }
       });
     });
   }
@@ -290,7 +463,7 @@ export class DependencyService {
   private probeCommand(cmd: string, args: string[], timeoutMs = 2500): Promise<string> {
     return new Promise((resolve, reject) => {
       let settled = false;
-      const child = spawn(cmd, args, { shell: process.platform === 'win32' });
+      const child = spawn(cmd, args, { shell: process.platform === 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
       let out = '';
 
       const timer = setTimeout(() => {
