@@ -213,11 +213,87 @@ button:disabled {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+/* Master Frameless App Window Layout */
+.app-window {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-main);
+}
+
+/* Glowing Frosted Glass Titlebar */
+.window-titlebar {
+  height: var(--titlebar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 14px;
+  background-color: var(--bg-titlebar);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border-titlebar);
+  box-shadow: var(--glow-titlebar);
+  -webkit-app-region: drag;
+  user-select: none;
+  z-index: 1000;
+  flex-shrink: 0;
+}
+
+.window-titlebar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  -webkit-app-region: no-drag;
+}
+
+.window-titlebar-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  -webkit-app-region: drag;
+}
+
+.window-titlebar-right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.window-control-btn {
+  width: 44px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  border-radius: 0;
+}
+
+.window-control-btn:hover {
+  background-color: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+.window-control-btn.close:hover {
+  background-color: #e81123 !important;
+  color: #ffffff !important;
+}
+
 /* App Layout Grid */
 .app-container {
   display: flex;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - var(--titlebar-height));
   overflow: hidden;
   background-color: var(--bg-main);
 }

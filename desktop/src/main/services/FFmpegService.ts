@@ -126,7 +126,11 @@ export class FFmpegService {
       }
     }
 
-    return Array.from(new Set(list));
+    // Prioritize candidates that already exist on disk, followed by 'ffmpeg'
+    const existing = list.filter((p) => path.isAbsolute(p) && fs.existsSync(p));
+    const others = list.filter((p) => !path.isAbsolute(p) || !fs.existsSync(p));
+
+    return Array.from(new Set([...existing, ...others]));
   }
 
   public getCachedInfo(): FFmpegInfo {
@@ -138,19 +142,40 @@ export class FFmpegService {
     };
   }
 
-  private runCommand(cmd: string, args: string[]): Promise<string> {
+  private runCommand(cmd: string, args: string[], timeoutMs = 3000): Promise<string> {
     return new Promise((resolve, reject) => {
-      const child = spawn(cmd, args, { shell: process.platform === 'win32' });
+      let settled = false;
+      const useShell = !path.isAbsolute(cmd) && process.platform === 'win32';
+      const child = spawn(cmd, args, { shell: useShell });
       let stdout = '';
       let stderr = '';
+
+      const timer = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          try { child.kill(); } catch {}
+          reject(new Error(`Command timed out after ${timeoutMs}ms: ${cmd}`));
+        }
+      }, timeoutMs);
 
       child.stdout?.on('data', (d) => { stdout += d.toString(); });
       child.stderr?.on('data', (d) => { stderr += d.toString(); });
 
-      child.on('error', (err) => reject(err));
+      child.on('error', (err) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          reject(err);
+        }
+      });
+
       child.on('close', (code) => {
-        if (code === 0) resolve(stdout || stderr);
-        else reject(new Error(`Exit code ${code}: ${stderr}`));
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          if (code === 0) resolve(stdout || stderr);
+          else reject(new Error(`Exit code ${code}: ${stderr}`));
+        }
       });
     });
   }

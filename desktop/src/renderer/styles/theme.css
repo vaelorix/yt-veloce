@@ -66,24 +66,31 @@
 
   --sidebar-width: 228px;
   --sidebar-collapsed-width: 60px;
+  --titlebar-height: 38px;
   --header-height: 52px;
   --footer-height: 28px;
+  --bg-titlebar: rgba(13, 17, 23, 0.8);
+  --border-titlebar: rgba(48, 54, 61, 0.65);
+  --glow-titlebar: 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 18px rgba(46, 160, 67, 0.22);
 
   --transition-fast: 0.12s ease;
   --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme='light'] {
-  --bg-main: #ffffff;
-  --bg-sidebar: #f6f8fa;
+  --bg-main: #f6f8fa;
+  --bg-sidebar: #ffffff;
   --bg-header: #ffffff;
-  --bg-surface: #f6f8fa;
-  --bg-surface-hover: #eaeef2;
-  --bg-surface-active: #e1e4e8;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f3f4f6;
+  --bg-surface-active: #ebedf0;
   --bg-card: #ffffff;
   --bg-card-subtle: #f6f8fa;
   --bg-input: #ffffff;
   --bg-terminal: #0d1117;
+  --bg-titlebar: rgba(255, 255, 255, 0.85);
+  --border-titlebar: rgba(208, 215, 222, 0.75);
+  --glow-titlebar: 0 1px 0 rgba(0, 0, 0, 0.04), 0 3px 14px rgba(31, 136, 61, 0.12);
 
   --border-subtle: #eaeef2;
   --border-light: #d0d7de;
