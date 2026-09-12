@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { EngineStatus } from '../../../shared/types';
 import { NavView } from './Sidebar';
 import { Sun, Moon, Minus, Square, Copy, X } from 'lucide-react';
+import { VeloceLogo } from '../VeloceLogo';
 
 interface TitleBarProps {
   currentView: NavView;
@@ -63,74 +64,20 @@ export const TitleBar: React.FC<TitleBarProps> = ({
     <header className="window-titlebar">
       {/* Left Brand Identity & Logo */}
       <div className="window-titlebar-left">
-        {/* Glowing Futuristic Logo Mark */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            filter: 'drop-shadow(0 0 7px rgba(63, 185, 80, 0.45))',
-            transition: 'filter 0.3s ease'
-          }}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <linearGradient id="veloceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#3fb950" />
-                <stop offset="60%" stopColor="#2ea043" />
-                <stop offset="100%" stopColor="#238636" />
-              </linearGradient>
-              <linearGradient id="innerArrow" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#ffffff" />
-                <stop offset="100%" stopColor="#d2f9d6" />
-              </linearGradient>
-            </defs>
-            {/* Hexagonal Core Plate */}
-            <path
-              d="M12 2.5L20.5 7.4V16.6L12 21.5L3.5 16.6V7.4L12 2.5Z"
-              fill="url(#veloceGrad)"
-              stroke="rgba(255, 255, 255, 0.25)"
-              strokeWidth="1.2"
-            />
-            {/* Download Arrow / Media Play Vector */}
-            <path
-              d="M12 7V13.5M12 13.5L9.2 10.8M12 13.5L14.8 10.8M8 16H16"
-              stroke="url(#innerArrow)"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+        {/* Glowing Futuristic yt-veloce Logo */}
+        <VeloceLogo size={22} glow />
 
         {/* Brand Name */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span
             style={{
-              fontWeight: 700,
+              fontWeight: 800,
               fontSize: 13,
               letterSpacing: -0.3,
               color: 'var(--text-primary)'
             }}
           >
-            Veloce
-          </span>
-          <span
-            style={{
-              fontWeight: 500,
-              fontSize: 12,
-              fontFamily: 'var(--font-mono)',
-              color: 'var(--accent-primary-bright)',
-              opacity: 0.95
-            }}
-          >
-            yt-dlp
+            yt-veloce
           </span>
           <span
             style={{
@@ -139,12 +86,12 @@ export const TitleBar: React.FC<TitleBarProps> = ({
               letterSpacing: '0.08em',
               padding: '1px 5px',
               borderRadius: 3,
-              backgroundColor: 'rgba(63, 185, 80, 0.12)',
-              border: '1px solid rgba(63, 185, 80, 0.35)',
+              backgroundColor: 'rgba(46, 160, 67, 0.16)',
+              border: '1px solid rgba(46, 160, 67, 0.4)',
               color: 'var(--accent-primary-bright)'
             }}
           >
-            STUDIO
+            v1.0.0
           </span>
         </div>
       </div>

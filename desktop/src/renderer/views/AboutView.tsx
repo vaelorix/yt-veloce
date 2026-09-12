@@ -1,36 +1,33 @@
 import React from 'react';
-import { Radio, Heart, Github, Shield, Terminal, BookOpen, ExternalLink } from 'lucide-react';
+import { Radio, Heart, GitBranch, Shield, Terminal, BookOpen, ExternalLink, Zap } from 'lucide-react';
+import { VeloceLogo } from '../components/VeloceLogo';
 
 export const AboutView: React.FC = () => {
   return (
     <div className="view-container">
       <div className="card" style={{ textAlign: 'center', padding: 36, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: 'var(--radius-lg)',
-            backgroundColor: '#161b22',
-            border: '1px solid #30363d',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--accent-primary-bright)',
-            marginBottom: 16,
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)'
-          }}
-        >
-          <Radio size={28} />
+        <div style={{ marginBottom: 18 }}>
+          <VeloceLogo size={64} glow />
         </div>
 
-        <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>yt-dlp Desktop Control Center</h2>
+        <h2 style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>yt-veloce</h2>
         <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-          Professional Graphical Orchestration Layer for yt-dlp • Version 1.0.0
+          High-Velocity Desktop Orchestration Layer for yt-dlp • Version 1.0.0
         </div>
 
         <p style={{ maxWidth: 640, fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 16 }}>
-          A cross-platform desktop application designed to expose the full power and configurability of <strong>yt-dlp</strong> through a modern, responsive user interface without sacrificing access to advanced CLI flags and stream controls.
+          A cross-platform desktop application designed to expose the full power and configurability of <strong>yt-dlp</strong> through a modern, responsive user interface without sacrificing access to advanced CLI flags, stream controls, and automation presets.
         </p>
+
+        <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+          <button
+            onClick={() => window.electronAPI?.openPath?.('https://github.com/vaelorix/yt-veloce')}
+            className="btn-secondary"
+            style={{ fontSize: 12, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <GitBranch size={15} /> GitHub Repository <ExternalLink size={12} />
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>

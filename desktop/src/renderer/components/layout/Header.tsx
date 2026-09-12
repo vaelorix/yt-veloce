@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
     dependencies: 'System Dependencies & Tools',
     logs: 'Logs & Engine Diagnostics',
     settings: 'Application Preferences',
-    about: 'About Veloce yt-dlp'
+    about: 'About yt-veloce'
   };
 
   const descriptions: Record<NavView, string> = {

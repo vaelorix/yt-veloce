@@ -1,4 +1,5 @@
 import React from 'react';
+import { VeloceLogo } from '../VeloceLogo';
 import {
   LayoutDashboard,
   PlusCircle,
@@ -111,45 +112,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
           gap: 10
         }}
       >
-        <div
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: 'var(--radius-md)',
-            backgroundColor: '#161b22',
-            border: '1px solid #30363d',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--accent-primary-bright)',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.4)'
-          }}
-        >
-          <Download size={15} />
-        </div>
+        <VeloceLogo size={collapsed ? 24 : 26} glow />
 
         {!collapsed && (
           <div style={{ overflow: 'hidden' }}>
             <div
               style={{
-                fontWeight: 600,
+                fontWeight: 700,
                 fontSize: 13,
                 color: 'var(--text-primary)',
                 letterSpacing: -0.2,
                 whiteSpace: 'nowrap'
               }}
             >
-              Veloce yt-dlp
+              yt-veloce
             </div>
             <div
               style={{
                 fontSize: 10,
-                color: 'var(--text-muted)',
+                color: 'var(--accent-primary-bright)',
                 letterSpacing: 0.3,
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                fontWeight: 500
               }}
             >
-              Media Studio
+              Media Engine
             </div>
           </div>
         )}
