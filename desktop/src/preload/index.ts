@@ -73,6 +73,12 @@ const api: ElectronAPI = {
     const handler = (_: IpcRendererEvent, log: LogEntry) => callback(log);
     ipcRenderer.on('log:entry', handler);
     return () => ipcRenderer.removeListener('log:entry', handler);
+  },
+
+  onDownloadLog: (callback: (data: { id: string; line: string }) => void) => {
+    const handler = (_: IpcRendererEvent, data: { id: string; line: string }) => callback(data);
+    ipcRenderer.on('download:log', handler);
+    return () => ipcRenderer.removeListener('download:log', handler);
   }
 };
 
