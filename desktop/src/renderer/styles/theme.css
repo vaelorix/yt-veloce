@@ -1,85 +1,126 @@
 :root {
-  --bg-main: #090d16;
-  --bg-sidebar: #0b1120;
-  --bg-surface: #0f172a;
-  --bg-surface-hover: #1e293b;
-  --bg-surface-active: #283548;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-input: #080d1a;
+  /* True Obsidian / GitHub Dark High-Fidelity Colors */
+  --bg-main: #0d1117;          /* GitHub dark main background */
+  --bg-sidebar: #090d11;       /* Deep obsidian sidebar */
+  --bg-header: #0d1117;        /* Clean dark header */
+  --bg-surface: #161b22;       /* GitHub card / panel surface */
+  --bg-surface-hover: #1f242c; /* Subtle hover state */
+  --bg-surface-active: #21262d;
+  --bg-card: #161b22;          /* Solid high-contrast dark card */
+  --bg-card-subtle: #0d1117;   /* Recessed card inner area */
+  --bg-input: #090d11;         /* Deep recessed input fields */
+  --bg-terminal: #090d11;      /* Console / terminal true dark */
 
-  --border-subtle: #1e293b;
-  --border-light: #334155;
-  --border-focus: #6366f1;
+  /* Borders: crisp 1px borders */
+  --border-subtle: #21262d;    /* Subtle dividers and grid lines */
+  --border-light: #30363d;     /* Card borders, button outlines, inputs */
+  --border-hover: #8b949e;     /* Hover state on borders */
+  --border-focus: #388bfd;     /* Focus outline */
+  --border-green: rgba(63, 185, 80, 0.4);
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverse: #090d16;
+  /* Typography */
+  --text-primary: #f0f6fc;     /* Crisp high-contrast near-white text */
+  --text-secondary: #c9d1d9;   /* Readable soft gray */
+  --text-muted: #7d8590;       /* Dimmed labels, counts, subtitles */
+  --text-dim: #484f58;         /* Very dim borders/separators */
+  --text-inverse: #0d1117;
 
-  --accent-primary: #6366f1;
-  --accent-primary-hover: #4f46e5;
-  --accent-primary-glow: rgba(99, 102, 241, 0.25);
+  /* Primary Accent: GitHub Emerald / Forest Green */
+  --accent-primary: #238636;         /* GitHub primary action button green */
+  --accent-primary-hover: #2ea043;   /* Hover green */
+  --accent-primary-active: #1f883d;  /* Active / pressed green */
+  --accent-primary-bright: #3fb950;  /* Bright neon green (active nav items, live status) */
+  --accent-primary-glow: rgba(46, 160, 67, 0.15); /* Soft background badge / glow */
+  --accent-primary-subtle: rgba(35, 134, 54, 0.12);
 
-  --accent-success: #10b981;
-  --accent-success-hover: #059669;
-  --accent-success-glow: rgba(16, 185, 129, 0.2);
+  /* Secondary Status Colors */
+  --accent-success: #3fb950;         /* Bright green */
+  --accent-success-hover: #2ea043;
+  --accent-success-glow: rgba(63, 185, 80, 0.15);
+  --accent-success-border: rgba(63, 185, 80, 0.35);
 
-  --accent-warning: #f59e0b;
-  --accent-warning-hover: #d97706;
-  --accent-warning-glow: rgba(245, 158, 11, 0.2);
+  --accent-warning: #d29922;         /* GitHub warning gold */
+  --accent-warning-hover: #bb8009;
+  --accent-warning-glow: rgba(210, 153, 34, 0.15);
 
-  --accent-danger: #f43f5e;
-  --accent-danger-hover: #e11d48;
-  --accent-danger-glow: rgba(244, 63, 94, 0.2);
+  --accent-danger: #f85149;          /* GitHub crimson red */
+  --accent-danger-hover: #da3633;
+  --accent-danger-glow: rgba(248, 81, 73, 0.15);
 
-  --accent-info: #0ea5e9;
-  --accent-purple: #8b5cf6;
+  --accent-info: #58a6ff;            /* GitHub blue */
+  --accent-purple: #bc8cff;          /* GitHub purple */
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.2);
+  --shadow-sm: 0 1px 0 rgba(1, 4, 9, 0.1);
+  --shadow-md: 0 3px 6px rgba(1, 4, 9, 0.4);
+  --shadow-lg: 0 8px 24px rgba(1, 4, 9, 0.7);
+  --shadow-glow: 0 0 16px rgba(46, 160, 67, 0.25);
 
-  --sidebar-width: 250px;
-  --sidebar-collapsed-width: 72px;
-  --header-height: 64px;
+  --sidebar-width: 228px;
+  --sidebar-collapsed-width: 60px;
+  --header-height: 52px;
+  --footer-height: 28px;
 
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme='light'] {
-  --bg-main: #f8fafc;
-  --bg-sidebar: #f1f5f9;
-  --bg-surface: #ffffff;
-  --bg-surface-hover: #f1f5f9;
-  --bg-surface-active: #e2e8f0;
-  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-main: #ffffff;
+  --bg-sidebar: #f6f8fa;
+  --bg-header: #ffffff;
+  --bg-surface: #f6f8fa;
+  --bg-surface-hover: #eaeef2;
+  --bg-surface-active: #e1e4e8;
+  --bg-card: #ffffff;
+  --bg-card-subtle: #f6f8fa;
   --bg-input: #ffffff;
+  --bg-terminal: #0d1117;
 
-  --border-subtle: #e2e8f0;
-  --border-light: #cbd5e1;
-  --border-focus: #4f46e5;
+  --border-subtle: #eaeef2;
+  --border-light: #d0d7de;
+  --border-hover: #afb8c1;
+  --border-focus: #0969da;
+  --border-green: rgba(31, 136, 61, 0.4);
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8c959f;
+  --text-dim: #d0d7de;
   --text-inverse: #ffffff;
 
-  --accent-primary: #4f46e5;
-  --accent-primary-hover: #4338ca;
-  --accent-primary-glow: rgba(79, 70, 229, 0.15);
+  --accent-primary: #1f883d;
+  --accent-primary-hover: #1a7f37;
+  --accent-primary-active: #156d30;
+  --accent-primary-bright: #1a7f37;
+  --accent-primary-glow: rgba(31, 136, 61, 0.12);
+  --accent-primary-subtle: rgba(31, 136, 61, 0.08);
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --accent-success: #1a7f37;
+  --accent-success-hover: #156d30;
+  --accent-success-glow: rgba(31, 136, 61, 0.12);
+  --accent-success-border: rgba(31, 136, 61, 0.3);
+
+  --accent-warning: #9a6700;
+  --accent-warning-hover: #825600;
+  --accent-warning-glow: rgba(154, 103, 0, 0.12);
+
+  --accent-danger: #cf222e;
+  --accent-danger-hover: #a40e26;
+  --accent-danger-glow: rgba(207, 34, 46, 0.12);
+
+  --accent-info: #0969da;
+  --accent-purple: #8250df;
+
+  --shadow-sm: 0 1px 0 rgba(31, 35, 40, 0.04);
+  --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
+  --shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.2);
 }
