@@ -1,0 +1,115 @@
+name: Release yt-veloce Multi-Platform Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Version tag to release (e.g. v1.0.0)'
+        required: false
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+            build_args: '--win --x64 --ia32 --arm64'
+          - os: macos-latest
+            platform: mac
+            build_args: '--mac --x64 --arm64'
+          - os: ubuntu-latest
+            platform: linux
+            build_args: '--linux AppImage deb rpm --x64 --arm64'
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'desktop/package-lock.json'
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install System Dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm libarchive-tools libsecret-1-dev
+          pip install pillow
+
+      - name: Install System Dependencies (Windows / macOS)
+        if: runner.os != 'Linux'
+        run: pip install pillow
+
+      - name: Install Desktop Node Dependencies
+        working-directory: desktop
+        run: npm install
+
+      - name: Generate Multi-Resolution Application Icons
+        working-directory: desktop
+        run: python resources/create_icons.py
+
+      - name: Compile Desktop Production Bundles
+        working-directory: desktop
+        run: npm run build
+
+      - name: Package Native Executables via electron-builder
+        working-directory: desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder ${{ matrix.build_args }}
+
+      - name: Generate SHA-256 Checksums (Windows)
+        if: runner.os == 'Windows'
+        working-directory: desktop/dist-release
+        shell: pwsh
+        run: |
+          Get-ChildItem -File -Recurse | Where-Object { $_.Extension -in '.exe', '.zip', '.blockmap' } | ForEach-Object {
+            $hash = (Get-FileHash -Path $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)" | Out-File -FilePath "SHA256SUMS-$($_.Name).txt" -Encoding ascii
+          }
+
+      - name: Generate SHA-256 Checksums (Unix)
+        if: runner.os != 'Windows'
+        working-directory: desktop/dist-release
+        run: |
+          for f in *.{dmg,zip,AppImage,deb,rpm,blockmap}; do
+            [ -f "$f" ] && sha256sum "$f" > "SHA256SUMS-$f.txt" || true
+          done
+
+      - name: Upload Binaries to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          draft: false
+          prerelease: false
+          files: |
+            desktop/dist-release/*.exe
+            desktop/dist-release/*.dmg
+            desktop/dist-release/*.AppImage
+            desktop/dist-release/*.deb
+            desktop/dist-release/*.rpm
+            desktop/dist-release/*.zip
+            desktop/dist-release/*.tar.gz
+            desktop/dist-release/*.blockmap
+            desktop/dist-release/SHA256SUMS-*.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
