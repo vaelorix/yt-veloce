@@ -1,18 +1,18 @@
-# yt-dlp Professional Desktop GUI
+# yt-veloce — High-Velocity Desktop Media Engine
 
-A professional, production-quality Electron desktop graphical user interface for [yt-dlp](https://github.com/yt-dlp/yt-dlp).
+A high-performance, production-quality desktop graphical control center for [yt-dlp](https://github.com/yt-dlp/yt-dlp).
 
-This project provides a comprehensive desktop frontend that exposes the power of yt-dlp through an intuitive, modern, and highly configurable GUI while preserving access to advanced functionality. **It is a fork built on top of the original yt-dlp project.**
+**yt-veloce** provides a comprehensive, modern desktop interface exposing the complete feature set of `yt-dlp` through an intuitive, streamlined UI while preserving deep configurability, stream inspection, and automated toolchain orchestration. **It is a fork and desktop interface built on top of the original yt-dlp project.**
 
 ## Features
 
-- **Intuitive Dashboard:** Get an overview of your active downloads, recent history, and system status at a glance.
-- **Advanced Download Manager:** Queue, pause, resume, cancel, or retry your downloads seamlessly.
-- **Format Explorer:** Select specific video and audio formats effortlessly with a specialized expression builder.
-- **Command Builder:** Automatically generates yt-dlp CLI commands as you configure your options, allowing you to learn the underlying CLI commands or copy them for terminal use.
-- **Presets & Profiles:** Save and reuse custom download configurations (like "Best Video + Audio", "Audio Only MP3", etc.).
-- **Live Logs & History:** Track the detailed execution logs and review download history in a structured format.
-- **Cross-Platform:** Works on Windows, macOS, and Linux out-of-the box using Electron.
+- **Media Acquisition Studio:** Unified URL intake and format configuration with SponsorBlock, subtitle embedding, multi-track extraction, and custom CLI flags.
+- **System Dependencies & Toolchain Auto-Detection:** Automatically discovers and verifies system installations of `yt-dlp`, `FFmpeg`, `FFprobe`, `Python 3`, `AtomicParsley`, and `aria2c` multi-threaded accelerator (including WinGet, Scoop, and Chocolatey packages) without terminal friction.
+- **Format Explorer:** Live `-F` stream probe inspecting all container codecs, bitrates, resolutions, and direct one-click selection.
+- **Command Builder & Script Exporter:** Real-time CLI argument generation with instant `.bat`, `.ps1`, and `.sh` export.
+- **Custom Presets & Profiles:** Full CRUD preset engine for 4K HDR, Best MP4, MP3 320k, FLAC Lossless, and Archive formats.
+- **Intuitive Dashboard & Queue:** Concurrent download management with live speed graphs, progress bars, pause/resume/cancel controls, and persistent SQLite history.
+- **Native Custom Titlebar & Glassmorphism Aesthetics:** Clean dark/light theme designed with modern high-contrast typography, collapsible sidebar, and responsive views.
 
 ## Acknowledgements & Upstream
 
