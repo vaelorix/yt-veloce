@@ -25,12 +25,26 @@ const TelegramIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
 
 export const AboutView: React.FC = () => {
   const openExternal = (url: string) => {
-    if (window.electronAPI?.openExternal) {
-      window.electronAPI.openExternal(url);
-    } else if (window.electronAPI?.openPath) {
-      window.electronAPI.openPath(url);
-    } else {
-      window.open(url, '_blank');
+    try {
+      if (window.electronAPI?.openExternal) {
+        window.electronAPI.openExternal(url);
+        return;
+      }
+    } catch (e) {
+      console.warn('Failed to call electronAPI.openExternal:', e);
+    }
+    try {
+      if (window.electronAPI?.openPath) {
+        window.electronAPI.openPath(url);
+        return;
+      }
+    } catch (e) {
+      console.warn('Failed to call electronAPI.openPath:', e);
+    }
+    try {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (e) {
+      console.warn('Failed to call window.open:', e);
     }
   };
 
@@ -54,24 +68,36 @@ export const AboutView: React.FC = () => {
         </p>
 
         <div style={{ display: 'flex', gap: 12, marginTop: 18, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <button
-            onClick={() => openExternal('https://github.com/vaelorix/yt-veloce')}
+          <a
+            href="https://github.com/vaelorix/yt-veloce"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault();
+              openExternal('https://github.com/vaelorix/yt-veloce');
+            }}
             className="btn-primary"
-            style={{ fontSize: 13, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 7 }}
+            style={{ fontSize: 13, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 7, textDecoration: 'none', cursor: 'pointer' }}
           >
             <Star size={15} fill="currentColor" color="#e3b341" />
             <span>Star on GitHub</span>
             <ExternalLink size={12} />
-          </button>
-          <button
-            onClick={() => openExternal('https://discord.gg/H5MNcFW63r')}
+          </a>
+          <a
+            href="https://discord.gg/H5MNcFW63r"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault();
+              openExternal('https://discord.gg/H5MNcFW63r');
+            }}
             className="btn-secondary"
-            style={{ fontSize: 13, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 6 }}
+            style={{ fontSize: 13, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', cursor: 'pointer' }}
           >
             <Radio size={15} color="var(--accent-primary-bright)" />
             <span>yt-dlp Discord</span>
             <ExternalLink size={12} />
-          </button>
+          </a>
         </div>
       </div>
 
@@ -147,18 +173,30 @@ export const AboutView: React.FC = () => {
 
         {/* Social Connect Links */}
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-          <button
-            onClick={() => openExternal('https://github.com/vaelorix')}
+          <a
+            href="https://github.com/vaelorix"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault();
+              openExternal('https://github.com/vaelorix');
+            }}
             className="btn-secondary"
-            style={{ fontSize: 12, padding: '7px 14px', display: 'flex', alignItems: 'center', gap: 7 }}
+            style={{ fontSize: 12, padding: '7px 14px', display: 'flex', alignItems: 'center', gap: 7, textDecoration: 'none', cursor: 'pointer' }}
             title="GitHub Profile"
           >
             <GithubIcon size={15} />
             <span>vaelorix</span>
-          </button>
+          </a>
 
-          <button
-            onClick={() => openExternal('https://instagram.com/thevaelorix18')}
+          <a
+            href="https://instagram.com/thevaelorix18"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault();
+              openExternal('https://instagram.com/thevaelorix18');
+            }}
             className="btn-secondary"
             style={{
               fontSize: 12,
@@ -166,7 +204,9 @@ export const AboutView: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 7,
-              borderColor: 'rgba(225, 48, 108, 0.3)'
+              borderColor: 'rgba(225, 48, 108, 0.3)',
+              textDecoration: 'none',
+              cursor: 'pointer'
             }}
             title="Instagram: thevaelorix18"
           >
@@ -174,10 +214,16 @@ export const AboutView: React.FC = () => {
               <InstagramIcon size={15} />
             </span>
             <span>thevaelorix18</span>
-          </button>
+          </a>
 
-          <button
-            onClick={() => openExternal('https://t.me/theVaelorix')}
+          <a
+            href="https://t.me/theVaelorix"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault();
+              openExternal('https://t.me/theVaelorix');
+            }}
             className="btn-secondary"
             style={{
               fontSize: 12,
@@ -185,7 +231,9 @@ export const AboutView: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 7,
-              borderColor: 'rgba(0, 136, 204, 0.3)'
+              borderColor: 'rgba(0, 136, 204, 0.3)',
+              textDecoration: 'none',
+              cursor: 'pointer'
             }}
             title="Telegram: @theVaelorix"
           >
@@ -193,7 +241,7 @@ export const AboutView: React.FC = () => {
               <TelegramIcon size={15} />
             </span>
             <span>@theVaelorix</span>
-          </button>
+          </a>
         </div>
       </div>
 
