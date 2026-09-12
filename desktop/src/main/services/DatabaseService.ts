@@ -477,10 +477,18 @@ export class DatabaseService {
       customYtDlpPath: '',
       customFFmpegPath: '',
       theme: 'dark',
+      accentColor: 'emerald',
       enableNotifications: true,
       defaultRateLimit: '',
       proxyUrl: '',
-      browserCookies: ''
+      browserCookies: '',
+      concurrentFragments: 8,
+      defaultAudioBitrate: 'best',
+      embedThumbnail: true,
+      embedSubtitles: false,
+      autoRetryCount: 5,
+      sponsorBlockMode: 'disabled',
+      layoutDensity: 'comfortable'
     };
 
     if (!this.db) return defaults;
