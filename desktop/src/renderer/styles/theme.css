@@ -131,3 +131,85 @@
   --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
   --shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.2);
 }
+
+/* ==============================================================================
+   Custom Vibrant Accent Color Palettes (Configurable in Settings)
+   ============================================================================== */
+
+[data-accent='emerald'] {
+  --accent-primary: #238636;
+  --accent-primary-hover: #2ea043;
+  --accent-primary-active: #1f883d;
+  --accent-primary-bright: #3fb950;
+  --accent-primary-glow: rgba(46, 160, 67, 0.18);
+  --accent-primary-subtle: rgba(35, 134, 54, 0.12);
+  --shadow-glow: 0 0 16px rgba(46, 160, 67, 0.28);
+  --glow-titlebar: 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 18px rgba(46, 160, 67, 0.22);
+}
+
+[data-accent='cyan'] {
+  --accent-primary: #0891b2;
+  --accent-primary-hover: #06b6d4;
+  --accent-primary-active: #0e7490;
+  --accent-primary-bright: #22d3ee;
+  --accent-primary-glow: rgba(6, 182, 212, 0.2);
+  --accent-primary-subtle: rgba(8, 145, 178, 0.12);
+  --shadow-glow: 0 0 16px rgba(6, 182, 212, 0.32);
+  --glow-titlebar: 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 18px rgba(6, 182, 212, 0.24);
+}
+
+[data-accent='purple'] {
+  --accent-primary: #7c3aed;
+  --accent-primary-hover: #8b5cf6;
+  --accent-primary-active: #6d28d9;
+  --accent-primary-bright: #a78bfa;
+  --accent-primary-glow: rgba(139, 92, 246, 0.2);
+  --accent-primary-subtle: rgba(124, 58, 237, 0.12);
+  --shadow-glow: 0 0 16px rgba(139, 92, 246, 0.32);
+  --glow-titlebar: 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 18px rgba(139, 92, 246, 0.24);
+}
+
+[data-accent='amber'] {
+  --accent-primary: #d97706;
+  --accent-primary-hover: #f59e0b;
+  --accent-primary-active: #b45309;
+  --accent-primary-bright: #fbbf24;
+  --accent-primary-glow: rgba(245, 158, 11, 0.2);
+  --accent-primary-subtle: rgba(217, 119, 6, 0.12);
+  --shadow-glow: 0 0 16px rgba(245, 158, 11, 0.32);
+  --glow-titlebar: 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 18px rgba(245, 158, 11, 0.24);
+}
+
+[data-accent='crimson'] {
+  --accent-primary: #dc2626;
+  --accent-primary-hover: #ef4444;
+  --accent-primary-active: #b91c1c;
+  --accent-primary-bright: #f87171;
+  --accent-primary-glow: rgba(239, 68, 68, 0.2);
+  --accent-primary-subtle: rgba(220, 38, 38, 0.12);
+  --shadow-glow: 0 0 16px rgba(239, 68, 68, 0.32);
+  --glow-titlebar: 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 18px rgba(239, 68, 68, 0.24);
+}
+
+[data-accent='rose'] {
+  --accent-primary: #db2777;
+  --accent-primary-hover: #ec4899;
+  --accent-primary-active: #be185d;
+  --accent-primary-bright: #f472b6;
+  --accent-primary-glow: rgba(236, 72, 153, 0.2);
+  --accent-primary-subtle: rgba(219, 39, 119, 0.12);
+  --shadow-glow: 0 0 16px rgba(236, 72, 153, 0.32);
+  --glow-titlebar: 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 18px rgba(236, 72, 153, 0.24);
+}
+
+[data-accent='blue'] {
+  --accent-primary: #2563eb;
+  --accent-primary-hover: #3b82f6;
+  --accent-primary-active: #1d4ed8;
+  --accent-primary-bright: #60a5fa;
+  --accent-primary-glow: rgba(59, 130, 246, 0.2);
+  --accent-primary-subtle: rgba(37, 99, 235, 0.12);
+  --shadow-glow: 0 0 16px rgba(59, 130, 246, 0.32);
+  --glow-titlebar: 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 18px rgba(59, 130, 246, 0.24);
+}
+
