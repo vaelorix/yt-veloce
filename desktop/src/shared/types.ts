@@ -83,16 +83,30 @@ export interface DownloadOptions {
   audioQuality?: string;
   videoFormat?: 'mp4' | 'mkv' | 'webm' | 'best';
   mergeOutputFormat?: 'mp4' | 'mkv' | 'webm';
+  maxResolution?: string;
+  videoCodecPreference?: string;
+  prefer60fps?: boolean;
   embedSubtitles?: boolean;
   embedThumbnail?: boolean;
   embedMetadata?: boolean;
+  embedChapters?: boolean;
+  splitChapters?: boolean;
+  sponsorBlockRemove?: boolean;
+  sponsorBlockCategories?: string;
+  sponsorBlockMark?: boolean;
   writeSubtitles?: boolean;
   writeAutoSubtitles?: boolean;
+  convertSubs?: string;
   subLanguages?: string;
   writeThumbnail?: boolean;
   writeDescription?: boolean;
   writeInfoJson?: boolean;
   rateLimit?: string;
+  concurrentFragments?: number;
+  useAria2?: boolean;
+  isPlaylist?: boolean;
+  playlistItems?: string;
+  downloadSections?: string;
   proxy?: string;
   cookiesBrowser?: string;
   cookieFile?: string;
@@ -239,6 +253,7 @@ export interface ElectronAPI {
   onProgress: (callback: (data: { id: string; progress: DownloadProgress }) => void) => () => void;
   onJobStatusChange: (callback: (data: { id: string; status: DownloadStatus; error?: string }) => void) => () => void;
   onLogEntry: (callback: (log: LogEntry) => void) => () => void;
+  onDownloadLog: (callback: (data: { id: string; line: string }) => void) => () => void;
 }
 
 export interface DependencyItem {
