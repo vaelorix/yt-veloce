@@ -96,8 +96,9 @@
 5. [Keyboard Shortcuts Reference](#-keyboard-shortcuts-reference)
 6. [Architecture & System Design](#-architecture--system-design)
 7. [Troubleshooting & Dependency Setup](#-troubleshooting--dependency-setup)
-8. [Acknowledgements & Upstream Attribution](#-acknowledgements--upstream-attribution)
-9. [License](#-license)
+8. [Author & Creator](#-author--creator)
+9. [Acknowledgements & Upstream Attribution](#-acknowledgements--upstream-attribution)
+10. [License](#-license)
 
 ---
 
@@ -310,6 +311,30 @@ winget install aria2.aria2
 Go to **Settings** or **New Download > Advanced Options**:
 - Set **Extract Cookies From Browser** to your daily browser (`chrome`, `firefox`, `brave`, `edge`).
 - yt-dlp will automatically read session tokens to authenticate media downloads securely.
+
+---
+
+## 👤 Author & Creator
+
+<p align="center">
+  <img src="assets/author-avatar.jpg" width="120" height="120" alt="Vaelorix" style="border-radius: 50%; border: 3px solid #2ea043; box-shadow: 0 4px 20px rgba(46,160,67,0.35);" />
+</p>
+
+<p align="center">
+  <strong>Crafted with ❤️ by <a href="https://github.com/vaelorix">Vaelorix</a></strong><br>
+  <em>Open-Source Developer & Multimedia Tooling Enthusiast</em>
+</p>
+
+<p align="center">
+  <a href="https://github.com/vaelorix"><img src="https://img.shields.io/badge/GitHub-vaelorix-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
+  &nbsp;
+  <a href="https://instagram.com/thevaelorix18"><img src="https://img.shields.io/badge/Instagram-thevaelorix18-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" /></a>
+  &nbsp;
+  <a href="https://t.me/theVaelorix"><img src="https://img.shields.io/badge/Telegram-@theVaelorix-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram" /></a>
+</p>
+
+> ⭐ **Support the Project:**
+> If you find **yt-veloce** helpful, please give the repository a **Star**! Your support keeps the project actively maintained and helps bring new desktop features and optimizations.
 
 ---
 
