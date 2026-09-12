@@ -1,5 +1,4 @@
 import React from 'react';
-import { VeloceLogo } from '../VeloceLogo';
 import {
   LayoutDashboard,
   PlusCircle,
@@ -100,46 +99,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
         flexShrink: 0
       }}
     >
-      {/* App Branding Top Header */}
+      {/* Sidebar Workspace Header & Toggle */}
       <div
         style={{
           height: 'var(--header-height)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          padding: collapsed ? '0' : '0 16px',
-          borderBottom: '1px solid var(--border-subtle)',
-          gap: 10
+          justifyContent: collapsed ? 'center' : 'space-between',
+          padding: collapsed ? '0' : '0 14px',
+          borderBottom: '1px solid var(--border-subtle)'
         }}
       >
-        <VeloceLogo size={collapsed ? 24 : 26} glow />
-
         {!collapsed && (
-          <div style={{ overflow: 'hidden' }}>
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: 13,
-                color: 'var(--text-primary)',
-                letterSpacing: -0.2,
-                whiteSpace: 'nowrap'
-              }}
-            >
-              yt-veloce
-            </div>
-            <div
-              style={{
-                fontSize: 10,
-                color: 'var(--accent-primary-bright)',
-                letterSpacing: 0.3,
-                whiteSpace: 'nowrap',
-                fontWeight: 500
-              }}
-            >
-              Media Engine
-            </div>
-          </div>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.06em',
+              color: 'var(--text-muted)',
+              textTransform: 'uppercase'
+            }}
+          >
+            Navigator
+          </span>
         )}
+
+        <button
+          onClick={onToggleCollapse}
+          style={{
+            padding: '5px 7px',
+            color: 'var(--text-muted)',
+            borderRadius: 'var(--radius-sm)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px solid var(--border-subtle)',
+            backgroundColor: 'var(--bg-card)'
+          }}
+          title={collapsed ? 'Expand Sidebar (Ctrl+B)' : 'Collapse Sidebar (Ctrl+B)'}
+        >
+          {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
+        </button>
       </div>
 
       {/* Navigation Sections */}
