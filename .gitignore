@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.data/
+yt_dlp/
+*.pyc
+__pycache__/
+.vscode/
+.idea/
+
