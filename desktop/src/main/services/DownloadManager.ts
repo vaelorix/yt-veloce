@@ -3,6 +3,7 @@ import { DownloadJob, DownloadOptions, DownloadProgress, DownloadStatus, VideoMe
 import { DatabaseService } from './DatabaseService';
 import { ProcessManager } from './ProcessManager';
 import { YtDlpService } from './YtDlpService';
+import { FFmpegService } from './FFmpegService';
 import { CommandBuilderService } from './CommandBuilderService';
 import { LoggingService } from './LoggingService';
 
@@ -166,8 +167,13 @@ export class DownloadManager {
     job.status = 'downloading';
     this.emitStatus(job.id, 'downloading');
 
-    // Build command & args
-    const buildResult = this.commandBuilder.build(job.options, settings.defaultOutputDir);
+    // Build command & args with detected or configured FFmpeg location
+    const ffmpegInfo = FFmpegService.getInstance().getCachedInfo();
+    const buildResult = this.commandBuilder.build(
+      job.options,
+      settings.defaultOutputDir,
+      ffmpegInfo.path || undefined
+    );
     job.commandExecuted = buildResult.command;
     this.db.saveJob(job);
 

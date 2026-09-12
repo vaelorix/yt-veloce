@@ -1,4 +1,6 @@
 import { spawn } from 'child_process';
+import path from 'path';
+import fs from 'fs';
 import { LoggingService } from './LoggingService';
 
 export interface FFmpegInfo {
@@ -23,7 +25,6 @@ export class FFmpegService {
   }
 
   public async detect(customPath?: string): Promise<FFmpegInfo> {
-    const binary = customPath && customPath.trim().length > 0 ? customPath.trim() : 'ffmpeg';
     const info: FFmpegInfo = {
       available: false,
       version: null,
@@ -31,31 +32,101 @@ export class FFmpegService {
       ffprobeAvailable: false
     };
 
-    try {
-      const versionOutput = await this.runCommand(binary, ['-version']);
-      if (versionOutput) {
-        info.available = true;
-        info.path = binary;
-        const match = versionOutput.match(/ffmpeg version\s+([^\s]+)/i);
-        info.version = match ? match[1] : 'detected';
-        this.logger.info('ffmpeg', `FFmpeg detected: ${info.version} at ${binary}`);
-      }
-    } catch {
-      // FFmpeg not found or failed
-    }
+    const candidates = this.getCandidatePaths(customPath);
 
-    try {
-      const ffprobeBinary = customPath ? customPath.replace(/ffmpeg(\.exe)?$/i, 'ffprobe$1') : 'ffprobe';
-      const ffprobeOutput = await this.runCommand(ffprobeBinary, ['-version']);
-      if (ffprobeOutput) {
-        info.ffprobeAvailable = true;
+    for (const candidate of candidates) {
+      try {
+        const versionOutput = await this.runCommand(candidate, ['-version']);
+        if (versionOutput) {
+          info.available = true;
+          info.path = candidate;
+          const match = versionOutput.match(/ffmpeg version\s+([^\s]+)/i);
+          info.version = match ? match[1] : 'detected';
+          this.logger.info('ffmpeg', `FFmpeg detected: ${info.version} at ${candidate}`);
+
+          // Also check ffprobe in the same directory or candidate
+          const ffprobeCandidate = candidate === 'ffmpeg'
+            ? 'ffprobe'
+            : candidate.replace(/ffmpeg(\.exe)?$/i, 'ffprobe$1');
+
+          try {
+            const probeOut = await this.runCommand(ffprobeCandidate, ['-version']);
+            if (probeOut) {
+              info.ffprobeAvailable = true;
+            }
+          } catch {
+            // ffprobe check failed
+          }
+
+          this.cachedInfo = info;
+          return info;
+        }
+      } catch {
+        // try next candidate
       }
-    } catch {
-      // FFprobe not found
     }
 
     this.cachedInfo = info;
     return info;
+  }
+
+  private getCandidatePaths(customPath?: string): string[] {
+    const list: string[] = [];
+
+    if (customPath && customPath.trim().length > 0) {
+      list.push(customPath.trim());
+    }
+
+    // Default system PATH
+    list.push('ffmpeg');
+
+    if (process.platform === 'win32') {
+      const localAppData = process.env.LOCALAPPDATA || '';
+      const userProfile = process.env.USERPROFILE || '';
+      const programFiles = process.env.ProgramFiles || 'C:\\Program Files';
+
+      if (localAppData) {
+        // Winget Links and WindowsApps aliases
+        list.push(path.join(localAppData, 'Microsoft', 'WinGet', 'Links', 'ffmpeg.exe'));
+        list.push(path.join(localAppData, 'Microsoft', 'WindowsApps', 'ffmpeg.exe'));
+
+        // WinGet Packages directory search for Gyan.FFmpeg
+        const wingetPackages = path.join(localAppData, 'Microsoft', 'WinGet', 'Packages');
+        if (fs.existsSync(wingetPackages)) {
+          try {
+            const dirs = fs.readdirSync(wingetPackages);
+            for (const d of dirs) {
+              if (d.toLowerCase().includes('ffmpeg')) {
+                const packageDir = path.join(wingetPackages, d);
+                if (fs.existsSync(path.join(packageDir, 'bin', 'ffmpeg.exe'))) {
+                  list.push(path.join(packageDir, 'bin', 'ffmpeg.exe'));
+                }
+                const subDirs = fs.readdirSync(packageDir);
+                for (const sub of subDirs) {
+                  const nestedBin = path.join(packageDir, sub, 'bin', 'ffmpeg.exe');
+                  if (fs.existsSync(nestedBin)) {
+                    list.push(nestedBin);
+                  }
+                }
+              }
+            }
+          } catch {
+            // Ignore readdir errors
+          }
+        }
+      }
+
+      // Standard installation locations
+      list.push(path.join(programFiles, 'ffmpeg', 'bin', 'ffmpeg.exe'));
+      list.push('C:\\ffmpeg\\bin\\ffmpeg.exe');
+      list.push('C:\\ProgramData\\chocolatey\\bin\\ffmpeg.exe');
+
+      if (userProfile) {
+        list.push(path.join(userProfile, 'scoop', 'shims', 'ffmpeg.exe'));
+      }
+    }
+
+    return Array.from(new Set(list));
   }
 
   public getCachedInfo(): FFmpegInfo {
@@ -73,8 +144,8 @@ export class FFmpegService {
       let stdout = '';
       let stderr = '';
 
-      child.stdout.on('data', (d) => { stdout += d.toString(); });
-      child.stderr.on('data', (d) => { stderr += d.toString(); });
+      child.stdout?.on('data', (d) => { stdout += d.toString(); });
+      child.stderr?.on('data', (d) => { stderr += d.toString(); });
 
       child.on('error', (err) => reject(err));
       child.on('close', (code) => {

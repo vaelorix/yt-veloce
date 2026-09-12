@@ -13,9 +13,22 @@ export class CommandBuilderService {
     return CommandBuilderService.instance;
   }
 
-  public build(options: DownloadOptions, defaultOutputDir?: string): CommandBuildResult {
+  public build(options: DownloadOptions, defaultOutputDir?: string, ffmpegPath?: string): CommandBuildResult {
     const args: string[] = [];
     const explanations: { flag: string; value?: string; description: string }[] = [];
+
+    // Explicit FFmpeg location if available and not purely 'ffmpeg'
+    if (ffmpegPath && ffmpegPath.trim().length > 0 && ffmpegPath !== 'ffmpeg') {
+      const loc = path.isAbsolute(ffmpegPath) ? path.dirname(ffmpegPath) : ffmpegPath;
+      if (!options.customArgs?.some((a) => a.includes('--ffmpeg-location'))) {
+        args.push('--ffmpeg-location', loc);
+        explanations.push({
+          flag: '--ffmpeg-location',
+          value: loc,
+          description: 'Location of FFmpeg & FFprobe multimedia binaries'
+        });
+      }
+    }
 
     // Output template & directory
     const outputDir = options.outputDir || defaultOutputDir || '';
