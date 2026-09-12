@@ -140,12 +140,35 @@ export const App: React.FC = () => {
       }
     });
 
+    // Subscribe to live process download logs per job
+    const unsubscribeDownloadLogs = window.electronAPI.onDownloadLog(({ id, line }) => {
+      setJobs((prevJobs) =>
+        prevJobs.map((j) => {
+          if (j.id === id) {
+            const nextLogs = [...j.logs, line];
+            if (nextLogs.length > 500) nextLogs.shift();
+            return { ...j, logs: nextLogs };
+          }
+          return j;
+        })
+      );
+      if (inspectedJob && inspectedJob.id === id) {
+        setInspectedJob((prev) => {
+          if (!prev) return null;
+          const nextLogs = [...(prev.logs || []), line];
+          if (nextLogs.length > 500) nextLogs.shift();
+          return { ...prev, logs: nextLogs };
+        });
+      }
+    });
+
     return () => {
       unsubscribeProgress();
       unsubscribeStatus();
       unsubscribeLogs();
+      unsubscribeDownloadLogs();
     };
-  }, [refreshEngine, refreshAllData]);
+  }, [refreshEngine, refreshAllData, inspectedJob]);
 
   // Handle Theme Attribute on HTML
   useEffect(() => {
