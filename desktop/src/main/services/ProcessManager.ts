@@ -1,6 +1,7 @@
 import { spawn, ChildProcess } from 'child_process';
 import { DownloadProgress, DownloadStatus } from '../../shared/types';
 import { LoggingService } from './LoggingService';
+import { YtDlpService } from './YtDlpService';
 
 export interface ProcessCallbacks {
   onProgress: (progress: DownloadProgress) => void;
@@ -41,7 +42,17 @@ export class ProcessManager {
 
     this.logger.info('download', `Starting download job [${jobId}] with command: ${cmd} ${executionArgs.join(' ')}`, jobId);
 
+    const wsRoot = YtDlpService.getInstance().getWorkspaceRoot();
+    const pythonPath = wsRoot
+      ? `${wsRoot};${process.env.PYTHONPATH || ''}`
+      : process.env.PYTHONPATH;
+
     const child = spawn(cmd, executionArgs, {
+      cwd: wsRoot || process.cwd(),
+      env: {
+        ...process.env,
+        ...(pythonPath ? { PYTHONPATH: pythonPath } : {})
+      },
       shell: process.platform === 'win32'
     });
 

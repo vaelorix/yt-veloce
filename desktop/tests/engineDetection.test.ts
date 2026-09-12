@@ -7,7 +7,7 @@ describe('Engine Detection Integration', () => {
     const service = YtDlpService.getInstance();
     const execInfo = await service.detect();
 
-    expect(execInfo.source).toBe('workspace');
+    expect(['workspace', 'system']).toContain(execInfo.source);
     expect(execInfo.version).toBe('2026.08.19');
     expect(execInfo.path).toBeDefined();
   });

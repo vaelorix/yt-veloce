@@ -16,6 +16,7 @@ export class YtDlpService {
   private static instance: YtDlpService;
   private logger = LoggingService.getInstance();
   private executable: YtDlpExecutable | null = null;
+  private workspaceRoot: string | null = null;
 
   private constructor() {}
 
@@ -26,8 +27,34 @@ export class YtDlpService {
     return YtDlpService.instance;
   }
 
+  public getWorkspaceRoot(): string | null {
+    return this.workspaceRoot;
+  }
+
   public async detect(customPath?: string): Promise<YtDlpExecutable> {
-    // 1. Check custom path if supplied
+    // 1. Locate workspace root
+    let wsRoot: string | null = null;
+    const candidateDirs = [process.cwd(), __dirname];
+    for (const startDir of candidateDirs) {
+      let current = startDir;
+      for (let i = 0; i < 6; i++) {
+        if (
+          fs.existsSync(path.join(current, 'yt-dlp.cmd')) ||
+          fs.existsSync(path.join(current, 'yt_dlp')) ||
+          fs.existsSync(path.join(current, 'desktop'))
+        ) {
+          wsRoot = current;
+          break;
+        }
+        const parent = path.dirname(current);
+        if (parent === current) break;
+        current = parent;
+      }
+      if (wsRoot) break;
+    }
+    this.workspaceRoot = wsRoot;
+
+    // 2. Check custom path if supplied
     if (customPath && customPath.trim().length > 0) {
       const trimmed = customPath.trim();
       const ver = await this.testBinary(trimmed, ['--version']);
@@ -44,29 +71,53 @@ export class YtDlpService {
       }
     }
 
-    // 2. Check local workspace
-    let workspaceRoot: string | null = null;
-    let candidateDirs = [process.cwd(), __dirname];
-    for (const startDir of candidateDirs) {
-      let current = startDir;
-      for (let i = 0; i < 6; i++) {
-        if (fs.existsSync(path.join(current, 'yt-dlp.cmd')) || fs.existsSync(path.join(current, 'yt_dlp'))) {
-          workspaceRoot = current;
-          break;
+    // 3. Check standalone binary candidate locations
+    const standaloneCandidates = this.getStandaloneBinaryCandidates();
+    for (const candidate of standaloneCandidates) {
+      try {
+        if (path.isAbsolute(candidate) && !fs.existsSync(candidate)) continue;
+        const ver = await this.testBinary(candidate, ['--version']);
+        if (ver) {
+          this.executable = {
+            cmd: candidate,
+            argsPrefix: [],
+            source: 'system',
+            version: ver,
+            path: candidate
+          };
+          this.logger.info('yt-dlp', `Detected standalone yt-dlp binary (${ver}) at ${candidate}`);
+          return this.executable;
         }
-        const parent = path.dirname(current);
-        if (parent === current) break;
-        current = parent;
+      } catch {
+        // continue
       }
-      if (workspaceRoot) break;
     }
 
-    if (workspaceRoot) {
-      const localCmd = path.join(workspaceRoot, 'yt-dlp.cmd');
-      const localPyModule = path.join(workspaceRoot, 'yt_dlp');
+    // 4. Check python -m yt_dlp
+    try {
+      const pyVer = await this.testBinary('python', ['-m', 'yt_dlp', '--version'], this.workspaceRoot || undefined);
+      if (pyVer) {
+        this.executable = {
+          cmd: 'python',
+          argsPrefix: ['-m', 'yt_dlp'],
+          source: 'system',
+          version: pyVer,
+          path: 'python -m yt_dlp'
+        };
+        this.logger.info('yt-dlp', `Detected Python yt-dlp module (${pyVer})`);
+        return this.executable;
+      }
+    } catch {
+      // continue
+    }
+
+    // 5. Check local workspace Python module directly
+    if (this.workspaceRoot) {
+      const localCmd = path.join(this.workspaceRoot, 'yt-dlp.cmd');
+      const localPyModule = path.join(this.workspaceRoot, 'yt_dlp');
 
       if (process.platform === 'win32' && fs.existsSync(localCmd)) {
-        const ver = await this.testBinary(localCmd, ['--version'], workspaceRoot);
+        const ver = await this.testBinary(localCmd, ['--version'], this.workspaceRoot);
         if (ver) {
           this.executable = {
             cmd: localCmd,
@@ -81,7 +132,7 @@ export class YtDlpService {
       }
 
       if (fs.existsSync(localPyModule)) {
-        const ver = await this.testBinary('python', ['-m', 'yt_dlp', '--version'], workspaceRoot);
+        const ver = await this.testBinary('python', ['-m', 'yt_dlp', '--version'], this.workspaceRoot);
         if (ver) {
           this.executable = {
             cmd: 'python',
@@ -96,21 +147,7 @@ export class YtDlpService {
       }
     }
 
-    // 3. Check system PATH
-    const systemVer = await this.testBinary('yt-dlp', ['--version']);
-    if (systemVer) {
-      this.executable = {
-        cmd: 'yt-dlp',
-        argsPrefix: [],
-        source: 'system',
-        version: systemVer,
-        path: 'yt-dlp'
-      };
-      this.logger.info('yt-dlp', `Detected system yt-dlp (${systemVer})`);
-      return this.executable;
-    }
-
-    // 4. Not found
+    // 6. Not found
     this.executable = {
       cmd: '',
       argsPrefix: [],
@@ -120,6 +157,56 @@ export class YtDlpService {
     };
     this.logger.warn('yt-dlp', 'No working yt-dlp executable found.');
     return this.executable;
+  }
+
+  private getStandaloneBinaryCandidates(): string[] {
+    const list: string[] = ['yt-dlp'];
+
+    if (process.platform === 'win32') {
+      const appData = process.env.APPDATA || '';
+      const localAppData = process.env.LOCALAPPDATA || '';
+      const userProfile = process.env.USERPROFILE || '';
+
+      // Python Scripts folders in Roaming
+      if (appData) {
+        const pyRoaming = path.join(appData, 'Python');
+        if (fs.existsSync(pyRoaming)) {
+          try {
+            const dirs = fs.readdirSync(pyRoaming);
+            for (const d of dirs) {
+              const bin = path.join(pyRoaming, d, 'Scripts', 'yt-dlp.exe');
+              if (fs.existsSync(bin)) list.push(bin);
+            }
+          } catch {}
+        }
+      }
+
+      // Python Scripts folders in LocalAppData
+      if (localAppData) {
+        const pyLocal = path.join(localAppData, 'Programs', 'Python');
+        if (fs.existsSync(pyLocal)) {
+          try {
+            const dirs = fs.readdirSync(pyLocal);
+            for (const d of dirs) {
+              const bin = path.join(pyLocal, d, 'Scripts', 'yt-dlp.exe');
+              if (fs.existsSync(bin)) list.push(bin);
+            }
+          } catch {}
+        }
+        list.push(path.join(localAppData, 'Microsoft', 'WinGet', 'Links', 'yt-dlp.exe'));
+        list.push(path.join(localAppData, 'Microsoft', 'WindowsApps', 'yt-dlp.exe'));
+      }
+
+      if (userProfile) {
+        list.push(path.join(userProfile, 'scoop', 'shims', 'yt-dlp.exe'));
+      }
+    }
+
+    // Filter so existing absolute paths are tried first
+    const existing = list.filter((p) => path.isAbsolute(p) && fs.existsSync(p));
+    const others = list.filter((p) => !path.isAbsolute(p) || !fs.existsSync(p));
+
+    return Array.from(new Set([...existing, ...others]));
   }
 
   public getExecutable(): YtDlpExecutable {
@@ -135,10 +222,20 @@ export class YtDlpService {
   private testBinary(cmd: string, args: string[], cwd?: string): Promise<string | null> {
     return new Promise((resolve) => {
       try {
+        const targetCwd = cwd || this.workspaceRoot || process.cwd();
+        const pythonPath = this.workspaceRoot
+          ? `${this.workspaceRoot};${process.env.PYTHONPATH || ''}`
+          : process.env.PYTHONPATH;
+
         const child = spawn(cmd, args, {
-          cwd: cwd || process.cwd(),
+          cwd: targetCwd,
+          env: {
+            ...process.env,
+            ...(pythonPath ? { PYTHONPATH: pythonPath } : {})
+          },
           shell: process.platform === 'win32'
         });
+
         let stdout = '';
         child.stdout?.on('data', (d) => { stdout += d.toString(); });
         child.on('error', () => resolve(null));
@@ -159,24 +256,36 @@ export class YtDlpService {
     if (!this.executable || this.executable.source === 'none') {
       await this.detect();
       if (!this.executable || this.executable.source === 'none') {
-        throw new Error('yt-dlp is not installed or available on this system.');
+        throw new Error('yt-dlp is not installed or available. Please install it in Dependencies.');
       }
     }
 
     const { cmd, argsPrefix } = this.executable;
+    const cleanUrl = url.trim();
+
     const args = [
       ...argsPrefix,
       '--dump-single-json',
       '--no-warnings',
       '--no-check-certificates',
       '--skip-download',
-      url.trim()
+      cleanUrl
     ];
 
-    this.logger.info('yt-dlp', `Analyzing URL: ${url}`);
+    this.logger.info('yt-dlp', `Analyzing URL: ${cleanUrl}`);
 
     return new Promise((resolve, reject) => {
+      const targetCwd = this.workspaceRoot || process.cwd();
+      const pythonPath = this.workspaceRoot
+        ? `${this.workspaceRoot};${process.env.PYTHONPATH || ''}`
+        : process.env.PYTHONPATH;
+
       const child = spawn(cmd, args, {
+        cwd: targetCwd,
+        env: {
+          ...process.env,
+          ...(pythonPath ? { PYTHONPATH: pythonPath } : {})
+        },
         shell: process.platform === 'win32'
       });
 
@@ -198,8 +307,12 @@ export class YtDlpService {
 
       child.on('close', (code) => {
         if (code !== 0) {
-          this.logger.error('yt-dlp', `Analysis failed with code ${code}: ${stderr}`);
-          return reject(new Error(stderr.trim() || `Analysis process exited with code ${code}`));
+          const errText = stderr.trim();
+          this.logger.error('yt-dlp', `Analysis failed with code ${code}: ${errText}`);
+          if (errText.includes('is not a valid URL')) {
+            return reject(new Error('The entered text is not a valid URL. Please enter a valid media link (e.g. YouTube, Vimeo, Twitter/X).'));
+          }
+          return reject(new Error(errText || `Analysis process exited with code ${code}`));
         }
 
         try {
@@ -210,7 +323,7 @@ export class YtDlpService {
           }
           const jsonStr = stdout.slice(firstBrace, lastBrace + 1);
           const raw = JSON.parse(jsonStr);
-          const metadata = this.normalizeMetadata(raw, url);
+          const metadata = this.normalizeMetadata(raw, cleanUrl);
           this.logger.info('yt-dlp', `Successfully analyzed "${metadata.title}" (${metadata.formats.length} formats found)`);
           resolve(metadata);
         } catch (err: any) {
@@ -301,26 +414,26 @@ export class YtDlpService {
     }));
 
     return {
-      id: raw.id || Math.random().toString(36).substring(2, 9),
-      title: raw.title || raw.fulltitle || 'Untitled Media',
-      url: raw.webpage_url || fallbackUrl,
-      thumbnail: raw.thumbnail || undefined,
-      description: raw.description || undefined,
-      uploader: raw.uploader || raw.channel || undefined,
-      uploaderId: raw.uploader_id || undefined,
-      uploaderUrl: raw.uploader_url || undefined,
-      duration: raw.duration || undefined,
-      durationString: raw.duration_string || undefined,
+      id: raw.id || 'unknown',
+      title: raw.title || 'Untitled Media',
+      url: fallbackUrl,
+      thumbnail: raw.thumbnail || (raw.thumbnails && raw.thumbnails.length ? raw.thumbnails[raw.thumbnails.length - 1].url : undefined),
+      description: raw.description || '',
+      uploader: raw.uploader || raw.channel || '',
+      uploaderId: raw.uploader_id || raw.channel_id || '',
+      uploaderUrl: raw.uploader_url || raw.channel_url || '',
+      duration: raw.duration || 0,
+      durationString: raw.duration_string || (raw.duration ? `${Math.floor(raw.duration / 60)}:${String(raw.duration % 60).padStart(2, '0')}` : undefined),
       viewCount: raw.view_count || undefined,
       likeCount: raw.like_count || undefined,
       uploadDate: raw.upload_date || undefined,
-      extractor: raw.extractor_key || raw.extractor || undefined,
-      webpageUrl: raw.webpage_url || undefined,
+      extractor: raw.extractor || raw.extractor_key || 'generic',
+      webpageUrl: raw.webpage_url || fallbackUrl,
       formats,
       subtitles,
       chapters,
-      isPlaylist: raw._type === 'playlist' || Array.isArray(raw.entries),
-      playlistCount: Array.isArray(raw.entries) ? raw.entries.length : undefined
+      isPlaylist: !!raw._type && raw._type === 'playlist',
+      playlistCount: raw.playlist_count || (raw.entries ? raw.entries.length : undefined)
     };
   }
 }
