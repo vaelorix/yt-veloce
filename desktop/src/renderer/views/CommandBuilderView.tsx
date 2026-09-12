@@ -153,16 +153,10 @@ export const CommandBuilderView: React.FC<CommandBuilderViewProps> = ({
   return (
     <div className="view-container">
       {/* Live Generated Command Bar */}
-      <div
-        className="card"
-        style={{
-          background: 'linear-gradient(135deg, rgba(8,13,26,0.95), rgba(15,23,42,0.9))',
-          border: '1px solid var(--accent-primary-glow)'
-        }}
-      >
+      <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 16 }}>
-            <Terminal size={20} color="var(--accent-primary)" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, fontSize: 15, color: 'var(--text-primary)' }}>
+            <Terminal size={18} color="var(--accent-primary-bright)" />
             Generated yt-dlp CLI Command
           </div>
 

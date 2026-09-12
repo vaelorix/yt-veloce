@@ -7,19 +7,20 @@ export const AboutView: React.FC = () => {
       <div className="card" style={{ textAlign: 'center', padding: 36, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div
           style={{
-            width: 64,
-            height: 64,
+            width: 56,
+            height: 56,
             borderRadius: 'var(--radius-lg)',
-            background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
+            backgroundColor: '#161b22',
+            border: '1px solid #30363d',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#ffffff',
+            color: 'var(--accent-primary-bright)',
             marginBottom: 16,
-            boxShadow: '0 4px 20px rgba(99, 102, 241, 0.35)'
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)'
           }}
         >
-          <Radio size={32} />
+          <Radio size={28} />
         </div>
 
         <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>yt-dlp Desktop Control Center</h2>

@@ -93,7 +93,7 @@ export const DownloadDetailsModal: React.FC<DownloadDetailsModalProps> = ({
         position: 'fixed',
         inset: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        backdropFilter: 'blur(8px)',
+        backdropFilter: 'blur(4px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -106,38 +106,59 @@ export const DownloadDetailsModal: React.FC<DownloadDetailsModalProps> = ({
         className="card"
         style={{
           width: '100%',
-          maxWidth: 780,
-          maxHeight: '90vh',
+          maxWidth: 760,
+          maxHeight: '88vh',
           display: 'flex',
           flexDirection: 'column',
           padding: 0,
           overflow: 'hidden',
-          backgroundColor: 'var(--bg-surface)'
+          backgroundColor: '#161b22',
+          borderColor: '#30363d',
+          boxShadow: '0 20px 48px rgba(0, 0, 0, 0.8)'
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
+        {/* Modal Header (matching Screenshot 3) */}
         <div
           style={{
-            padding: '16px 20px',
+            padding: '14px 20px',
             borderBottom: '1px solid var(--border-subtle)',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            backgroundColor: '#161b22'
           }}
         >
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700 }}>Download Inspector</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Job ID: {job.id}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>
+              {job.title || 'Download Details'}
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--text-muted)',
+                marginTop: 2
+              }}
+            >
+              Job ID: {job.id}
+            </div>
           </div>
 
-          <button onClick={onClose} className="btn-icon">
-            <X size={18} />
+          <button onClick={onClose} className="btn-icon" style={{ padding: 4 }}>
+            <X size={16} />
           </button>
         </div>
 
         {/* Navigation Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-subtle)', padding: '0 20px' }}>
+        <div
+          style={{
+            display: 'flex',
+            borderBottom: '1px solid var(--border-subtle)',
+            padding: '0 16px',
+            backgroundColor: 'var(--bg-main)'
+          }}
+        >
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'command', label: 'CLI Command' },
@@ -148,11 +169,17 @@ export const DownloadDetailsModal: React.FC<DownloadDetailsModalProps> = ({
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               style={{
-                padding: '12px 16px',
-                borderBottom: activeTab === tab.id ? '2px solid var(--accent-primary)' : '2px solid transparent',
-                color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '10px 14px',
+                borderBottom:
+                  activeTab === tab.id
+                    ? '2px solid var(--accent-primary-bright)'
+                    : '2px solid transparent',
+                color:
+                  activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-muted)',
                 fontWeight: activeTab === tab.id ? 600 : 500,
-                fontSize: 13
+                fontSize: 12,
+                borderRadius: 0,
+                backgroundColor: 'transparent'
               }}
             >
               {tab.label}
@@ -161,39 +188,96 @@ export const DownloadDetailsModal: React.FC<DownloadDetailsModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: 20, overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div
+          style={{
+            padding: 18,
+            overflowY: 'auto',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+            backgroundColor: 'var(--bg-main)'
+          }}
+        >
           {/* Tab 1: Overview */}
           {activeTab === 'overview' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 14,
+                  backgroundColor: '#161b22',
+                  padding: 14,
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border-light)'
+                }}
+              >
                 {job.thumbnail && (
                   <img
                     src={job.thumbnail}
                     alt="thumbnail"
-                    style={{ width: 140, height: 80, objectFit: 'cover', borderRadius: 'var(--radius-md)' }}
+                    style={{
+                      width: 130,
+                      height: 74,
+                      objectFit: 'cover',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid #30363d'
+                    }}
                   />
                 )}
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{job.title}</h3>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{job.url}</div>
-                  <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      marginBottom: 4,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {job.title}
+                  </h3>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--text-muted)',
+                      fontFamily: 'var(--font-mono)',
+                      wordBreak: 'break-all'
+                    }}
+                  >
+                    {job.url}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                     <span className="badge badge-primary">{job.status}</span>
                     {job.outputPath && (
-                      <span className="badge badge-neutral">File Ready</span>
+                      <span className="badge badge-neutral">File Saved</span>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Progress Detail */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
+              {/* Progress Detail Cards */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                  gap: 10
+                }}
+              >
                 <div className="card" style={{ padding: 12 }}>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Progress</div>
                   <div style={{ fontSize: 16, fontWeight: 700 }}>{job.progress.percent}%</div>
                 </div>
                 <div className="card" style={{ padding: 12 }}>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Current Speed</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--accent-primary)' }}>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: 'var(--accent-primary-bright)'
+                    }}
+                  >
                     {job.progress.speed}
                   </div>
                 </div>
@@ -203,23 +287,40 @@ export const DownloadDetailsModal: React.FC<DownloadDetailsModalProps> = ({
                 </div>
                 <div className="card" style={{ padding: 12 }}>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Stage</div>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>{job.progress.stage}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>{job.progress.stage}</div>
                 </div>
               </div>
 
               {/* Output Path Info */}
               {job.outputPath && (
                 <div className="card" style={{ padding: 14 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Output Location</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', wordBreak: 'break-all', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4 }}>
+                    Output Location
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: 'var(--text-secondary)',
+                      wordBreak: 'break-all',
+                      fontFamily: 'var(--font-mono)'
+                    }}
+                  >
                     {job.outputPath}
                   </div>
-                  <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-                    <button onClick={() => onOpenFile(job.outputPath!)} className="btn-primary" style={{ fontSize: 12 }}>
-                      <Play size={14} /> Open Media
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <button
+                      onClick={() => onOpenFile(job.outputPath!)}
+                      className="btn-primary"
+                      style={{ fontSize: 12, height: 28 }}
+                    >
+                      <Play size={13} /> Open Media
                     </button>
-                    <button onClick={() => onOpenFolder(job.outputPath!)} className="btn-secondary" style={{ fontSize: 12 }}>
-                      <Folder size={14} /> Show in Folder
+                    <button
+                      onClick={() => onOpenFolder(job.outputPath!)}
+                      className="btn-secondary"
+                      style={{ fontSize: 12, height: 28 }}
+                    >
+                      <Folder size={13} /> Show in Folder
                     </button>
                   </div>
                 </div>
@@ -229,18 +330,18 @@ export const DownloadDetailsModal: React.FC<DownloadDetailsModalProps> = ({
 
           {/* Tab 2: CLI Command */}
           {activeTab === 'command' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-                  Exact CLI command executed by the backend:
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  Backend Execution Syntax:
                 </span>
-                <button onClick={handleCopyCommand} className="btn-secondary" style={{ fontSize: 12 }}>
-                  {copiedCmd ? <Check size={14} color="var(--accent-success)" /> : <Copy size={14} />}
-                  {copiedCmd ? 'Copied' : 'Copy Command'}
+                <button onClick={handleCopyCommand} className="btn-secondary" style={{ fontSize: 11, height: 26 }}>
+                  {copiedCmd ? <Check size={13} color="var(--accent-primary-bright)" /> : <Copy size={13} />}
+                  <span>{copiedCmd ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
 
-              <div className="code-block" style={{ fontSize: 13 }}>
+              <div className="code-block" style={{ fontSize: 12 }}>
                 {job.commandExecuted || 'No command string captured.'}
               </div>
             </div>
@@ -255,14 +356,21 @@ export const DownloadDetailsModal: React.FC<DownloadDetailsModalProps> = ({
                 overflowY: 'auto',
                 fontSize: 11,
                 lineHeight: 1.6,
-                color: '#94a3b8'
+                color: 'var(--text-secondary)'
               }}
             >
               {job.logs.length === 0 ? (
-                <div>No console output recorded yet.</div>
+                <div style={{ color: 'var(--text-muted)' }}>No console output recorded yet.</div>
               ) : (
                 job.logs.map((line, idx) => (
-                  <div key={idx} style={{ color: line.includes('STDERR') ? '#f43f5e' : undefined }}>
+                  <div
+                    key={idx}
+                    style={{
+                      color: line.includes('STDERR') || line.includes('ERROR')
+                        ? 'var(--accent-danger)'
+                        : undefined
+                    }}
+                  >
                     {line}
                   </div>
                 ))
@@ -272,50 +380,97 @@ export const DownloadDetailsModal: React.FC<DownloadDetailsModalProps> = ({
 
           {/* Tab 4: Troubleshooting */}
           {activeTab === 'troubleshoot' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div
                 style={{
-                  padding: 16,
+                  padding: 14,
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: 'var(--accent-danger-glow)',
-                  border: '1px solid rgba(244,63,94,0.3)'
+                  border: '1px solid rgba(248, 81, 73, 0.35)'
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--accent-danger)', marginBottom: 6 }}>
-                  What Happened
+                <div
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 13,
+                    color: 'var(--accent-danger)',
+                    marginBottom: 4
+                  }}
+                >
+                  Diagnostic Alert
                 </div>
-                <div style={{ fontSize: 13 }}>{advice.what}</div>
+                <div style={{ fontSize: 12 }}>{advice.what}</div>
               </div>
 
-              <div className="card" style={{ padding: 16 }}>
-                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>
-                  Why It Probably Happened
+              <div className="card" style={{ padding: 14 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 4 }}>
+                  Likely Cause
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{advice.why}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                  {advice.why}
+                </div>
               </div>
 
               <div
                 className="card"
                 style={{
-                  padding: 16,
-                  borderColor: 'rgba(99,102,241,0.4)',
+                  padding: 14,
+                  borderColor: 'rgba(63, 185, 80, 0.4)',
                   backgroundColor: 'var(--accent-primary-glow)'
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--accent-primary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Sparkles size={16} />
-                  What You Can Try
+                <div
+                  style={{
+                    fontWeight: 600,
+                    fontSize: 13,
+                    color: 'var(--accent-primary-bright)',
+                    marginBottom: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}
+                >
+                  <Sparkles size={15} />
+                  Suggested Solution
                 </div>
-                <div style={{ fontSize: 13 }}>{advice.fix}</div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                <button onClick={() => onRetry(job.id)} className="btn-primary">
-                  Retry Download
-                </button>
+                <div style={{ fontSize: 12 }}>{advice.fix}</div>
               </div>
             </div>
           )}
+        </div>
+
+        {/* Modal Footer (matching Screenshot 3: Cancel and Save/Action buttons) */}
+        <div
+          style={{
+            padding: '12px 20px',
+            borderTop: '1px solid var(--border-subtle)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: '#161b22'
+          }}
+        >
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+            Status: {job.status}
+          </div>
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={onClose} className="btn-secondary" style={{ padding: '5px 14px', fontSize: 12 }}>
+              Close
+            </button>
+            {job.status === 'error' && (
+              <button
+                onClick={() => {
+                  onRetry(job.id);
+                  onClose();
+                }}
+                className="btn-primary"
+                style={{ padding: '5px 14px', fontSize: 12 }}
+              >
+                Retry
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

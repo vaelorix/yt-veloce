@@ -82,18 +82,38 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   return (
     <div className="view-container">
       {/* Save Button Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-          Configure application parameters, download directories, and execution environments.
-        </p>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 12,
+          paddingBottom: 12,
+          borderBottom: '1px solid var(--border-subtle)'
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>Settings</div>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            System configuration, binary paths, directories, and interface preferences
+          </p>
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {savedNotice && (
-            <span style={{ fontSize: 13, color: 'var(--accent-success)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Check size={16} /> Saved!
+            <span
+              style={{
+                fontSize: 12,
+                color: 'var(--accent-primary-bright)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4
+              }}
+            >
+              <Check size={14} /> Saved!
             </span>
           )}
-          <button onClick={handleSave} className="btn-primary" style={{ padding: '8px 20px' }}>
+          <button onClick={handleSave} className="btn-primary" style={{ padding: '6px 18px', fontSize: 12 }}>
             Save Settings
           </button>
         </div>
@@ -102,14 +122,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 16 }}>
         {/* Section 1: Downloads & Storage */}
         <div className="card">
-          <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Folder size={18} color="var(--accent-primary)" />
+          <h3
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              marginBottom: 14,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
+            }}
+          >
+            <Folder size={15} color="var(--accent-primary-bright)" />
             Download Paths & Naming
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 5 }}>
                 Default Destination Directory
               </label>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -117,7 +149,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   type="text"
                   value={defaultOutputDir}
                   onChange={(e) => setDefaultOutputDir(e.target.value)}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, fontFamily: 'var(--font-mono)' }}
                 />
                 <button type="button" onClick={handleBrowseOutputDir} className="btn-secondary" style={{ fontSize: 12 }}>
                   Browse
@@ -126,7 +158,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 5 }}>
                 Output Filename Template
               </label>
               <input
@@ -136,7 +168,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 style={{ width: '100%', fontFamily: 'var(--font-mono)' }}
               />
 
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 8 }}>
                 <span style={{ fontSize: 11, color: 'var(--text-muted)', alignSelf: 'center' }}>Insert Tag:</span>
                 {[
                   '%(title)s',
@@ -149,8 +181,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   <button
                     key={tag}
                     type="button"
-                    className="badge badge-neutral"
-                    style={{ cursor: 'pointer', fontSize: 10, padding: '3px 6px' }}
+                    className="badge-count"
+                    style={{ cursor: 'pointer', fontSize: 10, padding: '2px 6px', border: '1px solid var(--border-light)' }}
                     onClick={() => insertTag(tag)}
                   >
                     {tag}
@@ -160,18 +192,21 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
-                Max Concurrent Downloads: {maxConcurrentDownloads}
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, marginBottom: 5 }}>
+                <span>Max Concurrent Downloads</span>
+                <span style={{ color: 'var(--accent-primary-bright)', fontFamily: 'var(--font-mono)' }}>
+                  {maxConcurrentDownloads}
+                </span>
+              </div>
               <input
                 type="range"
                 min={1}
                 max={8}
                 value={maxConcurrentDownloads}
                 onChange={(e) => setMaxConcurrentDownloads(parseInt(e.target.value, 10))}
-                style={{ width: '100%' }}
+                style={{ width: '100%', accentColor: 'var(--accent-primary)' }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-muted)' }}>
                 <span>1 (Sequential)</span>
                 <span>4 (Balanced)</span>
                 <span>8 (High Bandwidth)</span>
@@ -183,26 +218,37 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         {/* Section 2: Engine Binaries */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Cpu size={18} color="var(--accent-primary)" />
+            <h3
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em'
+              }}
+            >
+              <Cpu size={15} color="var(--accent-primary-bright)" />
               Engine & Executables
             </h3>
-            <button onClick={onRefreshEngine} className="btn-secondary" style={{ fontSize: 11, padding: '4px 8px' }}>
-              <RotateCw size={13} /> Re-detect
+            <button onClick={onRefreshEngine} className="btn-secondary" style={{ fontSize: 11, padding: '3px 8px' }}>
+              <RotateCw size={12} /> Re-detect
             </button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, marginBottom: 5 }}>
                 <span>yt-dlp Binary Path</span>
-                <span style={{ color: engineStatus?.ytdlpAvailable ? 'var(--accent-success)' : 'var(--accent-danger)' }}>
+                <span style={{ color: engineStatus?.ytdlpAvailable ? 'var(--accent-primary-bright)' : 'var(--accent-danger)' }}>
                   {engineStatus?.ytdlpVersion ? `Detected: ${engineStatus.ytdlpVersion}` : 'Not detected'}
                 </span>
               </div>
               <input
                 type="text"
-                placeholder="Leave empty for auto-detection (workspace / system PATH)"
+                placeholder="Auto-detected (workspace / system PATH)"
                 value={customYtDlpPath}
                 onChange={(e) => setCustomYtDlpPath(e.target.value)}
                 style={{ width: '100%', fontFamily: 'var(--font-mono)' }}
@@ -213,21 +259,21 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, marginBottom: 5 }}>
                 <span>FFmpeg Executable Path</span>
-                <span style={{ color: engineStatus?.ffmpegAvailable ? 'var(--accent-success)' : 'var(--accent-warning)' }}>
+                <span style={{ color: engineStatus?.ffmpegAvailable ? 'var(--accent-primary-bright)' : 'var(--accent-warning)' }}>
                   {engineStatus?.ffmpegAvailable ? `Ready (${engineStatus.ffmpegVersion || 'detected'})` : 'Missing'}
                 </span>
               </div>
               <input
                 type="text"
-                placeholder="Leave empty for system PATH"
+                placeholder="Auto-detected in system PATH"
                 value={customFFmpegPath}
                 onChange={(e) => setCustomFFmpegPath(e.target.value)}
                 style={{ width: '100%', fontFamily: 'var(--font-mono)' }}
               />
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-                Required for stream remuxing, MP3 extraction, and subtitle embedding.
+                Required for stream merging, audio extraction, and metadata embedding.
               </div>
             </div>
           </div>
@@ -235,14 +281,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
         {/* Section 3: Network & Proxy */}
         <div className="card">
-          <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Globe size={18} color="var(--accent-primary)" />
-            Network & Rate Limiting
+          <h3
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              marginBottom: 14,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
+            }}
+          >
+            <Globe size={15} color="var(--accent-info)" />
+            Network & Proxy
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 5 }}>
                 Default Rate Limit
               </label>
               <input
@@ -255,7 +313,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 5 }}>
                 Proxy Server
               </label>
               <input
@@ -263,22 +321,77 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 placeholder="http://proxy.example.com:8080 or socks5://127.0.0.1:1080"
                 value={proxyUrl}
                 onChange={(e) => setProxyUrl(e.target.value)}
-                style={{ width: '100%' }}
+                style={{ width: '100%', fontFamily: 'var(--font-mono)' }}
               />
             </div>
           </div>
         </div>
 
-        {/* Section 4: Authentication & Cookies */}
+        {/* Section 4: Interface & Appearance (with Segmented Controls) */}
         <div className="card">
-          <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Cookie size={18} color="var(--accent-warning)" />
-            Browser Cookies
+          <h3
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              marginBottom: 14,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
+            }}
+          >
+            <Sliders size={15} color="var(--accent-primary-bright)" />
+            Interface & Cookies
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* Theme Toggle (matching Screenshot 1 segmented control) */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600 }}>Theme Mode</label>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>GitHub Obsidian dark or clean light</div>
+              </div>
+
+              <div className="segmented-control">
+                <button
+                  type="button"
+                  className={`segmented-btn ${theme === 'light' ? 'active' : ''}`}
+                  onClick={() => setTheme('light')}
+                >
+                  Light
+                </button>
+                <button
+                  type="button"
+                  className={`segmented-btn ${theme === 'dark' ? 'active' : ''}`}
+                  onClick={() => setTheme('dark')}
+                >
+                  Dark
+                </button>
+              </div>
+            </div>
+
+            {/* Layout Density */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600 }}>Table Layout</label>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Column widths and row padding</div>
+              </div>
+
+              <div className="segmented-control">
+                <button type="button" className="segmented-btn active">
+                  Comfortable
+                </button>
+                <button type="button" className="segmented-btn">
+                  Compact
+                </button>
+              </div>
+            </div>
+
+            {/* Browser Cookies */}
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 5 }}>
                 Load Cookies from Installed Browser
               </label>
               <select
@@ -293,23 +406,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <option value="brave">Brave Browser</option>
                 <option value="opera">Opera</option>
                 <option value="chromium">Chromium</option>
-              </select>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-                Uses yt-dlp's secure <code>--cookies-from-browser</code> feature. Cookies are passed directly to the engine and never logged or transmitted elsewhere.
-              </div>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
-                Application Appearance
-              </label>
-              <select
-                value={theme}
-                onChange={(e) => setTheme(e.target.value as any)}
-                style={{ width: '100%' }}
-              >
-                <option value="dark">Dark Theme (Pro Charcoal & Slate)</option>
-                <option value="light">Light Theme (Clean Studio)</option>
               </select>
             </div>
           </div>

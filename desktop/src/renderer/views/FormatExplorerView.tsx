@@ -92,9 +92,9 @@ export const FormatExplorerView: React.FC<FormatExplorerViewProps> = ({
   return (
     <div className="view-container">
       {/* Format Builder Card */}
-      <div className="card" style={{ background: 'linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.8))' }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Terminal size={18} color="var(--accent-primary)" />
+      <div className="card">
+        <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Terminal size={17} color="var(--accent-primary-bright)" />
           yt-dlp Format Selector Expression
         </h3>
         <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14 }}>

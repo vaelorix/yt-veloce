@@ -62,51 +62,53 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="view-container">
       {/* Metrics Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
         {/* Active Card */}
-        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px' }}>
           <div
             style={{
-              width: 46,
-              height: 46,
+              width: 42,
+              height: 42,
               borderRadius: 'var(--radius-md)',
               backgroundColor: 'var(--accent-primary-glow)',
-              color: 'var(--accent-primary)',
+              color: 'var(--accent-primary-bright)',
+              border: '1px solid var(--accent-success-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}
           >
-            <Download size={24} />
+            <Download size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Active Downloads</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{activeJobs.length}</div>
-            <div style={{ fontSize: 11, color: 'var(--accent-primary)' }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>Active Downloads</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>{activeJobs.length}</div>
+            <div style={{ fontSize: 11, color: 'var(--accent-primary-bright)' }}>
               {activeJobs.length > 0 ? 'Processing streams' : 'Idle'}
             </div>
           </div>
         </div>
 
         {/* Queued Card */}
-        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px' }}>
           <div
             style={{
-              width: 46,
-              height: 46,
+              width: 42,
+              height: 42,
               borderRadius: 'var(--radius-md)',
               backgroundColor: 'var(--accent-warning-glow)',
               color: 'var(--accent-warning)',
+              border: '1px solid rgba(210, 153, 34, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}
           >
-            <ListOrdered size={24} />
+            <ListOrdered size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>In Queue</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{queuedJobs.length}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>In Queue</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>{queuedJobs.length}</div>
             <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
               {queuedJobs.length > 0 ? 'Waiting for slot' : 'Queue empty'}
             </div>
@@ -114,47 +116,55 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Completed Card */}
-        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px' }}>
           <div
             style={{
-              width: 46,
-              height: 46,
+              width: 42,
+              height: 42,
               borderRadius: 'var(--radius-md)',
               backgroundColor: 'var(--accent-success-glow)',
               color: 'var(--accent-success)',
+              border: '1px solid var(--accent-success-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}
           >
-            <CheckCircle2 size={24} />
+            <CheckCircle2 size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Completed</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{completedJobs.length}</div>
-            <div style={{ fontSize: 11, color: 'var(--accent-success)' }}>Saved to disk</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>Completed</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>{completedJobs.length}</div>
+            <div style={{ fontSize: 11, color: 'var(--accent-success)' }}>Saved to library</div>
           </div>
         </div>
 
         {/* Engine Health Card */}
-        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px' }}>
           <div
             style={{
-              width: 46,
-              height: 46,
+              width: 42,
+              height: 42,
               borderRadius: 'var(--radius-md)',
-              backgroundColor: engineStatus?.ytdlpAvailable ? 'var(--accent-success-glow)' : 'var(--accent-danger-glow)',
-              color: engineStatus?.ytdlpAvailable ? 'var(--accent-success)' : 'var(--accent-danger)',
+              backgroundColor: engineStatus?.ytdlpAvailable
+                ? 'var(--accent-success-glow)'
+                : 'var(--accent-danger-glow)',
+              color: engineStatus?.ytdlpAvailable
+                ? 'var(--accent-success)'
+                : 'var(--accent-danger)',
+              border: engineStatus?.ytdlpAvailable
+                ? '1px solid var(--accent-success-border)'
+                : '1px solid rgba(248, 81, 73, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}
           >
-            <Cpu size={24} />
+            <Cpu size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Engine Health</div>
-            <div style={{ fontSize: 15, fontWeight: 700 }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>Engine Health</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>
               {engineStatus?.ytdlpAvailable ? 'Operational' : 'Action Needed'}
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
@@ -165,9 +175,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Quick Download Action Box */}
-      <div className="card" style={{ background: 'linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,41,59,0.7))' }}>
-        <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Download size={18} color="var(--accent-primary)" />
+      <div className="card">
+        <h3
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+            marginBottom: 12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em'
+          }}
+        >
+          <Download size={15} color="var(--accent-primary-bright)" />
           Quick Download Launcher
         </h3>
         <form onSubmit={handleQuickSubmit} style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -176,7 +198,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             placeholder="Paste YouTube, Vimeo, Twitch, or supported URL..."
             value={quickUrl}
             onChange={(e) => setQuickUrl(e.target.value)}
-            style={{ flex: 1, minWidth: 280, fontSize: 14, padding: '10px 14px' }}
+            style={{ flex: 1, minWidth: 260, fontSize: 13 }}
           />
 
           <select
@@ -403,7 +425,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 6, borderBottom: '1px solid var(--border-subtle)' }}>
               <span style={{ color: 'var(--text-muted)' }}>Platform Architecture</span>
               <span style={{ fontWeight: 500 }}>
-                {engineStatus?.platform || process.platform} ({engineStatus?.arch || process.arch})
+                {engineStatus?.platform || 'Unknown'} ({engineStatus?.arch || 'Unknown'})
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
