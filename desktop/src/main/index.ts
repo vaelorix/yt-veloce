@@ -30,12 +30,13 @@ async function createWindow() {
   await downloadManager.initialize();
 
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 840,
-    minWidth: 1000,
-    minHeight: 650,
+    width: 1300,
+    height: 860,
+    minWidth: 1040,
+    minHeight: 680,
     backgroundColor: '#0d1117',
-    title: 'yt-dlp Desktop Control Center',
+    title: 'Veloce yt-dlp Studio',
+    frame: false,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),

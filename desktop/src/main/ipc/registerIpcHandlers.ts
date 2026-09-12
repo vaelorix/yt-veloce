@@ -167,4 +167,33 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   ipcMain.handle('dependencies:install', async (_, name: string) => {
     return dependencyService.install(name);
   });
+
+  // --- Window Controls (Frameless) ---
+  ipcMain.handle('window:minimize', () => {
+    mainWindow.minimize();
+  });
+
+  ipcMain.handle('window:maximize', () => {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  });
+
+  ipcMain.handle('window:close', () => {
+    mainWindow.close();
+  });
+
+  ipcMain.handle('window:isMaximized', () => {
+    return mainWindow.isMaximized();
+  });
+
+  mainWindow.on('maximize', () => {
+    mainWindow.webContents.send('window:maximized-change', true);
+  });
+
+  mainWindow.on('unmaximize', () => {
+    mainWindow.webContents.send('window:maximized-change', false);
+  });
 }

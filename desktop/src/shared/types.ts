@@ -227,6 +227,13 @@ export interface ElectronAPI {
   // Dependencies
   getDependencies: () => Promise<DependencyItem[]>;
   installDependency: (id: string) => Promise<{ success: boolean; message: string }>;
+
+  // Window Controls
+  minimizeWindow: () => Promise<void>;
+  maximizeWindow: () => Promise<void>;
+  closeWindow: () => Promise<void>;
+  isWindowMaximized: () => Promise<boolean>;
+  onWindowMaximizedChange: (callback: (isMax: boolean) => void) => () => void;
   
   // Events
   onProgress: (callback: (data: { id: string; progress: DownloadProgress }) => void) => () => void;

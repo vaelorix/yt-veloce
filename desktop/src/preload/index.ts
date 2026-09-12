@@ -45,6 +45,17 @@ const api: ElectronAPI = {
   getDependencies: () => ipcRenderer.invoke('dependencies:list'),
   installDependency: (id: string) => ipcRenderer.invoke('dependencies:install', id),
 
+  // Window Controls
+  minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
+  maximizeWindow: () => ipcRenderer.invoke('window:maximize'),
+  closeWindow: () => ipcRenderer.invoke('window:close'),
+  isWindowMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+  onWindowMaximizedChange: (callback: (isMax: boolean) => void) => {
+    const handler = (_: IpcRendererEvent, isMax: boolean) => callback(isMax);
+    ipcRenderer.on('window:maximized-change', handler);
+    return () => ipcRenderer.removeListener('window:maximized-change', handler);
+  },
+
   // Events
   onProgress: (callback: (data: { id: string; progress: DownloadProgress }) => void) => {
     const handler = (_: IpcRendererEvent, data: { id: string; progress: DownloadProgress }) => callback(data);
