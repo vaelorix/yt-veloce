@@ -27,6 +27,13 @@ export const AboutView: React.FC = () => {
           >
             <GitBranch size={15} /> GitHub Repository <ExternalLink size={12} />
           </button>
+          <button
+            onClick={() => window.electronAPI?.openPath?.('https://discord.gg/H5MNUF6')}
+            className="btn-secondary"
+            style={{ fontSize: 12, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <Radio size={15} color="var(--accent-primary-bright)" /> yt-dlp Discord <ExternalLink size={12} />
+          </button>
         </div>
       </div>
 
