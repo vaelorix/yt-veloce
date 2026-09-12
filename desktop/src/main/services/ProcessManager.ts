@@ -47,13 +47,15 @@ export class ProcessManager {
       ? `${wsRoot};${process.env.PYTHONPATH || ''}`
       : process.env.PYTHONPATH;
 
+    const isScript = cmd.toLowerCase().endsWith('.cmd') || cmd.toLowerCase().endsWith('.bat');
     const child = spawn(cmd, executionArgs, {
       cwd: wsRoot || process.cwd(),
       env: {
         ...process.env,
         ...(pythonPath ? { PYTHONPATH: pythonPath } : {})
       },
-      shell: process.platform === 'win32'
+      shell: isScript,
+      stdio: ['ignore', 'pipe', 'pipe']
     });
 
     this.runningProcesses.set(jobId, child);
@@ -114,7 +116,11 @@ export class ProcessManager {
 
     child.stderr.on('data', (data: Buffer) => {
       const text = data.toString();
-      callbacks.onLog(`[STDERR] ${text}`);
+      const lines = text.split(/\r?\n/);
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        callbacks.onLog(`[STDERR] ${line}`);
+      }
       this.logger.warn('yt-dlp', text, jobId);
       lastErrorSnippet = text;
     });
@@ -145,9 +151,15 @@ export class ProcessManager {
         callbacks.onCompleted(detectedOutputPath);
       } else {
         this.logger.error('download', `Job [${jobId}] failed with exit code ${code}`, jobId);
+        // Extract meaningful error line if present
+        let errMessage = `Download process exited with code ${code}`;
+        const errorLine = lastErrorSnippet.split(/\r?\n/).find((l) => l.includes('ERROR:'));
+        if (errorLine) {
+          errMessage = errorLine.replace(/^ERROR:\s*/, '').trim();
+        }
         callbacks.onError(
-          `Download process exited with code ${code}`,
-          lastErrorSnippet || 'Unknown engine error. Inspect the job logs for details.'
+          errMessage,
+          lastErrorSnippet || 'Engine error occurred. Inspect the job logs for details.'
         );
       }
     });
