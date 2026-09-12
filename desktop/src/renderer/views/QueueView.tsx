@@ -286,19 +286,51 @@ export const QueueView: React.FC<QueueViewProps> = ({
               {job.status === 'error' && job.error && (
                 <div
                   style={{
-                    backgroundColor: 'var(--accent-danger-glow)',
-                    border: '1px solid rgba(244,63,94,0.25)',
+                    backgroundColor: 'rgba(248, 81, 73, 0.1)',
+                    border: '1px solid rgba(248, 81, 73, 0.35)',
                     borderRadius: 'var(--radius-sm)',
                     padding: '8px 12px',
                     fontSize: 12,
-                    color: 'var(--accent-danger)',
+                    color: '#f85149',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 8
+                    justifyContent: 'space-between',
+                    gap: 12
                   }}
                 >
-                  <AlertCircle size={15} />
-                  <span>{job.error}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <AlertCircle size={15} style={{ flexShrink: 0 }} />
+                    <span>{job.error}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenDetails(job);
+                      }}
+                      className="btn-secondary"
+                      style={{
+                        fontSize: 11,
+                        padding: '3px 8px',
+                        height: 'auto',
+                        border: '1px solid rgba(248, 81, 73, 0.4)'
+                      }}
+                    >
+                      Inspect Logs
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRetry(job.id);
+                      }}
+                      className="btn-primary"
+                      style={{ fontSize: 11, padding: '3px 10px', height: 'auto' }}
+                    >
+                      Retry
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
