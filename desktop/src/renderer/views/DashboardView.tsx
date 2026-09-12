@@ -14,7 +14,8 @@ import {
   RotateCw,
   Folder,
   SlidersHorizontal,
-  ExternalLink
+  ExternalLink,
+  PlusCircle
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -38,9 +39,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onResume,
   onOpenDetails
 }) => {
-  const [quickUrl, setQuickUrl] = useState('');
-  const [selectedPresetId, setSelectedPresetId] = useState(presets[0]?.id || 'yt-best-mp4');
-
   const activeJobs = jobs.filter((j) => j.status === 'downloading' || j.status === 'postprocessing');
   const queuedJobs = jobs.filter((j) => j.status === 'queued');
   const completedJobs = jobs.filter((j) => j.status === 'completed');
@@ -51,13 +49,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   activeJobs.forEach((j) => {
     totalSpeedBytes += j.progress.speedBytesPerSec || 0;
   });
-
-  const handleQuickSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!quickUrl.trim()) return;
-    onQuickDownload(quickUrl.trim(), selectedPresetId);
-    setQuickUrl('');
-  };
 
   return (
     <div className="view-container">
@@ -174,60 +165,65 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Quick Download Action Box */}
-      <div className="card">
-        <h3
-          style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-            marginBottom: 12,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em'
-          }}
-        >
-          <Download size={15} color="var(--accent-primary-bright)" />
-          Quick Download Launcher
-        </h3>
-        <form onSubmit={handleQuickSubmit} style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <input
-            type="url"
-            placeholder="Paste YouTube, Vimeo, Twitch, or supported URL..."
-            value={quickUrl}
-            onChange={(e) => setQuickUrl(e.target.value)}
-            style={{ flex: 1, minWidth: 260, fontSize: 13 }}
-          />
-
-          <select
-            value={selectedPresetId}
-            onChange={(e) => setSelectedPresetId(e.target.value)}
-            style={{ width: 220, padding: '10px 14px', fontSize: 13 }}
+      {/* Media Studio Quick Actions Banner */}
+      <div
+        className="card"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 16,
+          flexWrap: 'wrap',
+          background: 'linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.98) 100%)',
+          border: '1px solid var(--border-color)',
+          padding: '16px 20px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: 'rgba(46, 160, 67, 0.15)',
+              border: '1px solid rgba(46, 160, 67, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--accent-primary-bright)'
+            }}
           >
-            {presets.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+            <Download size={22} />
+          </div>
+          <div>
+            <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+              Media Acquisition Studio
+            </h3>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '3px 0 0 0' }}>
+              Inspect live streams, select video/audio codecs, configure SponsorBlock, and queue conversions.
+            </p>
+          </div>
+        </div>
 
-          <button type="submit" className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }}>
-            <Download size={16} />
-            Download Now
-          </button>
-
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <button
-            type="button"
-            className="btn-secondary"
             onClick={() => onNavigate('new-download')}
-            title="Open Advanced Analysis and Format Picker"
+            className="btn-primary"
+            style={{ padding: '8px 18px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}
           >
-            <SlidersHorizontal size={16} />
-            Advanced Setup
+            <PlusCircle size={15} />
+            <span>Open Download Studio</span>
+            <kbd style={{ fontSize: 10, padding: '1px 5px', borderRadius: 3, backgroundColor: 'rgba(0,0,0,0.3)' }}>Ctrl+N</kbd>
           </button>
-        </form>
+          <button
+            onClick={() => onNavigate('queue')}
+            className="btn-secondary"
+            style={{ padding: '8px 14px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <ListOrdered size={15} />
+            <span>View Queue ({activeJobs.length + queuedJobs.length})</span>
+          </button>
+        </div>
       </div>
 
       {/* Active Downloads Section */}
