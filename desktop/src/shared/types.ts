@@ -111,6 +111,7 @@ export interface DownloadOptions {
   proxy?: string;
   cookiesBrowser?: string;
   cookieFile?: string;
+  retries?: number;
   customArgs?: string[] | string;
 }
 
@@ -174,10 +175,18 @@ export interface AppSettings {
   customYtDlpPath: string;
   customFFmpegPath: string;
   theme: 'dark' | 'light' | 'system';
+  accentColor?: string;
   enableNotifications: boolean;
   defaultRateLimit: string;
   proxyUrl: string;
   browserCookies: string;
+  concurrentFragments?: number;
+  defaultAudioBitrate?: string;
+  embedThumbnail?: boolean;
+  embedSubtitles?: boolean;
+  autoRetryCount?: number;
+  sponsorBlockMode?: 'disabled' | 'remove' | 'mark';
+  layoutDensity?: 'comfortable' | 'compact';
 }
 
 export interface LogEntry {
