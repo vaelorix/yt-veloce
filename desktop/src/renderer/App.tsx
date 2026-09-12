@@ -301,7 +301,6 @@ export const App: React.FC = () => {
           totalSpeed={formatTotalSpeed(totalSpeedBytes)}
           theme={theme}
           onToggleTheme={handleToggleTheme}
-          onNewDownloadClick={() => setCurrentView('new-download')}
           activeCount={jobs.filter((j) => j.status === 'downloading' || j.status === 'postprocessing').length}
         />
 
