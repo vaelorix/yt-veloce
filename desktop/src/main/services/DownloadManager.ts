@@ -165,7 +165,11 @@ export class DownloadManager {
     }
 
     job.status = 'downloading';
+    job.progress.statusText = 'Connecting to host...';
+    job.progress.speed = 'Connecting...';
+    job.progress.stage = 'downloading';
     this.emitStatus(job.id, 'downloading');
+    this.emitProgress(job.id, job.progress);
 
     // Build command & args with detected or configured FFmpeg location
     const ffmpegInfo = FFmpegService.getInstance().getCachedInfo();
@@ -198,6 +202,7 @@ export class DownloadManager {
         if (job.logs.length > 500) {
           job.logs.shift();
         }
+        this.emitLog(job.id, line);
       },
       onCompleted: (outputPath?: string) => {
         job.status = 'completed';
@@ -315,6 +320,12 @@ export class DownloadManager {
   private emitStatus(id: string, status: DownloadStatus, error?: string): void {
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.mainWindow.webContents.send('download:status', { id, status, error });
+    }
+  }
+
+  private emitLog(id: string, line: string): void {
+    if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+      this.mainWindow.webContents.send('download:log', { id, line });
     }
   }
 }
