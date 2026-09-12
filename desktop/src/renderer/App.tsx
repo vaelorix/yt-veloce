@@ -268,6 +268,7 @@ export const App: React.FC = () => {
           theme={theme}
           onToggleTheme={handleToggleTheme}
           onNewDownloadClick={() => setCurrentView('new-download')}
+          activeCount={jobs.filter((j) => j.status === 'downloading' || j.status === 'postprocessing').length}
         />
 
         {/* View Routing */}
@@ -371,6 +372,57 @@ export const App: React.FC = () => {
         )}
 
         {currentView === 'about' && <AboutView />}
+
+        {/* Dedicated Bottom Status Bar (matching GitHub Power Suite) */}
+        <footer className="app-statusbar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-primary-bright)',
+                boxShadow: '0 0 6px rgba(63, 185, 80, 0.5)'
+              }}
+            />
+            {jobs.some((j) => j.status === 'downloading') ? (
+              <span>
+                Running yt-dlp worker · {totalSpeedBytes > 0 ? formatTotalSpeed(totalSpeedBytes) : 'processing'}
+              </span>
+            ) : (
+              <span>yt-dlp Engine Ready · SQLite connected</span>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontFamily: 'var(--font-mono)' }}>
+            <span>
+              <strong style={{ color: 'var(--text-secondary)' }}>
+                {jobs.filter((j) => j.status === 'queued').length}
+              </strong>{' '}
+              queued
+            </span>
+            <span>
+              <strong style={{ color: 'var(--text-secondary)' }}>
+                {jobs.filter((j) => j.status === 'downloading' || j.status === 'postprocessing').length}
+              </strong>{' '}
+              active
+            </span>
+            <span>
+              <strong style={{ color: 'var(--text-secondary)' }}>{history.length}</strong> completed
+            </span>
+            <span>
+              FFmpeg:{' '}
+              <span
+                style={{
+                  color: engineStatus?.ffmpegAvailable ? 'var(--accent-primary-bright)' : 'var(--accent-warning)'
+                }}
+              >
+                {engineStatus?.ffmpegAvailable ? 'Ready' : 'Missing'}
+              </span>
+            </span>
+            <span>exit: 0</span>
+          </div>
+        </footer>
       </div>
 
       {/* Deep Inspection & Troubleshooting Modal */}

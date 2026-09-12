@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { EngineStatus } from '../../../shared/types';
 import { NavView } from './Sidebar';
-import { ArrowDown, Cpu, Film, Moon, Sun, Plus } from 'lucide-react';
+import {
+  Play,
+  Square,
+  Search,
+  CheckCircle2,
+  AlertCircle,
+  Sun,
+  Moon,
+  Zap,
+  ChevronDown
+} from 'lucide-react';
 
 interface HeaderProps {
   currentView: NavView;
@@ -10,6 +20,7 @@ interface HeaderProps {
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
   onNewDownloadClick: () => void;
+  activeCount?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,97 +29,255 @@ export const Header: React.FC<HeaderProps> = ({
   totalSpeed,
   theme,
   onToggleTheme,
-  onNewDownloadClick
+  onNewDownloadClick,
+  activeCount = 0
 }) => {
-  const titles: Record<NavView, { title: string; subtitle: string }> = {
-    dashboard: { title: 'Dashboard', subtitle: 'System overview and live download metrics' },
-    'new-download': { title: 'New Download', subtitle: 'Analyze URLs, configure formats, and queue downloads' },
-    queue: { title: 'Download Queue', subtitle: 'Active, queued, and paused jobs' },
-    history: { title: 'Download History', subtitle: 'Completed media library and logs' },
-    'format-explorer': { title: 'Format Explorer', subtitle: 'Deep dive into stream codecs, resolutions, and bitrate specs' },
-    presets: { title: 'Presets & Profiles', subtitle: 'Reusable download configurations for rapid workflow' },
-    'command-builder': { title: 'Command Builder', subtitle: 'Live CLI syntax generator & argument breakdown' },
-    logs: { title: 'Logs & Diagnostics', subtitle: 'Real-time logs for yt-dlp, FFmpeg, and application events' },
-    settings: { title: 'Settings', subtitle: 'General preferences, directories, and binary configurations' },
-    about: { title: 'About & Open Source', subtitle: 'yt-dlp Desktop Control Center architecture' }
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const titles: Record<NavView, string> = {
+    dashboard: 'Dashboard',
+    'new-download': 'New Download',
+    queue: 'Download Queue',
+    history: 'Download History',
+    'format-explorer': 'Format Explorer',
+    presets: 'Presets & Profiles',
+    'command-builder': 'Command Builder',
+    logs: 'Logs & Diagnostics',
+    settings: 'Settings',
+    about: 'About'
   };
 
-  const current = titles[currentView] || { title: 'yt-dlp GUI', subtitle: '' };
+  const isDownloading = activeCount > 0;
 
   return (
     <header
       style={{
         height: 'var(--header-height)',
-        padding: '0 24px',
+        padding: '0 16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         borderBottom: '1px solid var(--border-subtle)',
-        backgroundColor: 'var(--bg-surface)',
-        zIndex: 10
+        backgroundColor: 'var(--bg-header)',
+        zIndex: 10,
+        gap: 12,
+        userSelect: 'none'
       }}
     >
-      {/* Title */}
-      <div>
-        <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: -0.3, color: 'var(--text-primary)' }}>
-          {current.title}
-        </h1>
-        <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{current.subtitle}</p>
+      {/* Left / Center Workflow Controls */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        {/* Preset Selector Dropdown Button (matching Screenshot 1) */}
+        <button
+          onClick={onNewDownloadClick}
+          className="btn-secondary"
+          style={{
+            padding: '5px 10px',
+            fontSize: 12,
+            gap: 6,
+            height: 30,
+            borderRadius: 'var(--radius-md)'
+          }}
+          title="Quick profile selector"
+        >
+          <Zap size={13} color="var(--accent-primary-bright)" />
+          <span style={{ fontWeight: 500 }}>Best Quality (MP4)</span>
+          <ChevronDown size={12} color="var(--text-muted)" />
+        </button>
+
+        {/* Action Button: Vibrant Green Run / Stop Button */}
+        <button
+          onClick={onNewDownloadClick}
+          className={isDownloading ? 'btn-danger' : 'btn-primary'}
+          style={{
+            padding: '5px 14px',
+            fontSize: 12,
+            fontWeight: 600,
+            height: 30,
+            borderRadius: 'var(--radius-md)',
+            gap: 6
+          }}
+        >
+          {isDownloading ? (
+            <>
+              <Square size={12} fill="currentColor" />
+              <span>Stop</span>
+            </>
+          ) : (
+            <>
+              <Play size={12} fill="currentColor" />
+              <span>Run</span>
+            </>
+          )}
+        </button>
+
+        {/* State Metrics (matching Screenshot 1: State: idle / Elapsed: —) */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            fontSize: 12,
+            marginLeft: 4,
+            color: 'var(--text-muted)'
+          }}
+        >
+          <div>
+            State:{' '}
+            <span
+              style={{
+                color: isDownloading ? 'var(--accent-primary-bright)' : 'var(--text-primary)',
+                fontWeight: 600
+              }}
+            >
+              {isDownloading ? 'active' : 'idle'}
+            </span>
+          </div>
+
+          {isDownloading && totalSpeed && totalSpeed !== '0 B/s' ? (
+            <div>
+              Speed:{' '}
+              <span style={{ color: 'var(--accent-primary-bright)', fontWeight: 600 }}>
+                {totalSpeed}
+              </span>
+            </div>
+          ) : (
+            <div>
+              Elapsed: <span style={{ color: 'var(--text-secondary)' }}>—</span>
+            </div>
+          )}
+
+          <div>
+            Active:{' '}
+            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+              {activeCount}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Right Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        {/* Speed Counter */}
-        {totalSpeed && totalSpeed !== '0 B/s' && (
-          <div
-            className="badge badge-success"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px' }}
+      {/* Right Tools & Environment Badges */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {/* Search or Command Box (matching Screenshot 1 & 4) */}
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            width: 200
+          }}
+        >
+          <Search
+            size={13}
+            style={{
+              position: 'absolute',
+              left: 9,
+              color: 'var(--text-muted)',
+              pointerEvents: 'none'
+            }}
+          />
+          <input
+            type="text"
+            placeholder="Search or run..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              paddingLeft: 28,
+              paddingRight: 48,
+              paddingTop: 4,
+              paddingBottom: 4,
+              fontSize: 12,
+              height: 28,
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: 'var(--bg-input)',
+              borderColor: 'var(--border-light)'
+            }}
+          />
+          <span
+            style={{
+              position: 'absolute',
+              right: 6,
+              fontSize: 10,
+              color: 'var(--text-muted)',
+              backgroundColor: '#161b22',
+              border: '1px solid #30363d',
+              padding: '1px 4px',
+              borderRadius: 3,
+              pointerEvents: 'none'
+            }}
           >
-            <ArrowDown size={14} className="animate-pulse" />
-            <span>{totalSpeed}</span>
-          </div>
-        )}
-
-        {/* yt-dlp status pill */}
-        <div
-          className={`badge ${engineStatus?.ytdlpAvailable ? 'badge-success' : 'badge-danger'}`}
-          title={
-            engineStatus?.ytdlpAvailable
-              ? `yt-dlp ${engineStatus.ytdlpVersion} (${engineStatus.ytdlpSource})`
-              : 'yt-dlp not detected'
-          }
-          style={{ display: 'flex', alignItems: 'center', gap: 5 }}
-        >
-          <Cpu size={13} />
-          <span>{engineStatus?.ytdlpVersion ? `yt-dlp ${engineStatus.ytdlpVersion}` : 'yt-dlp Missing'}</span>
+            Ctrl K
+          </span>
         </div>
 
-        {/* FFmpeg status pill */}
+        {/* Engine / Python Badge (matching Python 3.11.6 badge in screenshot 1) */}
         <div
-          className={`badge ${engineStatus?.ffmpegAvailable ? 'badge-primary' : 'badge-warning'}`}
-          title={engineStatus?.ffmpegAvailable ? `FFmpeg ${engineStatus.ffmpegVersion}` : 'FFmpeg not detected'}
-          style={{ display: 'flex', alignItems: 'center', gap: 5 }}
+          style={{
+            height: 28,
+            padding: '0 10px',
+            backgroundColor: '#161b22',
+            border: '1px solid #30363d',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: 11,
+            fontFamily: 'var(--font-mono)',
+            color: 'var(--text-secondary)'
+          }}
+          title={engineStatus?.ytdlpSource || 'yt-dlp Engine'}
         >
-          <Film size={13} />
-          <span>{engineStatus?.ffmpegAvailable ? 'FFmpeg Ready' : 'No FFmpeg'}</span>
+          {engineStatus?.ytdlpVersion
+            ? `yt-dlp ${engineStatus.ytdlpVersion}`
+            : 'yt-dlp Ready'}
         </div>
 
-        {/* Theme switch */}
+        {/* Connection Status Badge (matching ● Connected badge in screenshot 1) */}
+        <div
+          style={{
+            height: 28,
+            padding: '0 10px',
+            backgroundColor: engineStatus?.ytdlpAvailable
+              ? 'rgba(46, 160, 67, 0.15)'
+              : 'rgba(248, 81, 73, 0.15)',
+            border: engineStatus?.ytdlpAvailable
+              ? '1px solid rgba(63, 185, 80, 0.4)'
+              : '1px solid rgba(248, 81, 73, 0.4)',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 12,
+            fontWeight: 500,
+            color: engineStatus?.ytdlpAvailable
+              ? 'var(--accent-primary-bright)'
+              : 'var(--accent-danger)'
+          }}
+        >
+          <span
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: '50%',
+              backgroundColor: engineStatus?.ytdlpAvailable
+                ? 'var(--accent-primary-bright)'
+                : 'var(--accent-danger)',
+              boxShadow: engineStatus?.ytdlpAvailable
+                ? '0 0 6px rgba(63, 185, 80, 0.6)'
+                : 'none'
+            }}
+          />
+          <span>{engineStatus?.ytdlpAvailable ? 'Connected' : 'Disconnected'}</span>
+        </div>
+
+        {/* Theme Toggle Icon */}
         <button
           onClick={onToggleTheme}
           className="btn-icon"
           title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+          style={{ width: 28, height: 28, padding: 0 }}
         >
-          {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
         </button>
-
-        {/* Quick New Download button */}
-        {currentView !== 'new-download' && (
-          <button onClick={onNewDownloadClick} className="btn-primary" style={{ padding: '7px 14px', fontSize: 13 }}>
-            <Plus size={16} />
-            <span>New Download</span>
-          </button>
-        )}
       </div>
     </header>
   );

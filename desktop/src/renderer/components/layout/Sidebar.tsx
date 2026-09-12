@@ -10,9 +10,10 @@ import {
   ScrollText,
   Settings,
   Info,
+  Menu,
+  Download,
   ChevronLeft,
-  ChevronRight,
-  Radio
+  ChevronRight
 } from 'lucide-react';
 
 export type NavView =
@@ -26,6 +27,16 @@ export type NavView =
   | 'logs'
   | 'settings'
   | 'about';
+
+interface NavGroup {
+  title: string;
+  items: {
+    id: NavView;
+    label: string;
+    icon: React.ReactNode;
+    badge?: number | string;
+  }[];
+}
 
 interface SidebarProps {
   currentView: NavView;
@@ -42,17 +53,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
   queueCount
 }) => {
-  const navItems: { id: NavView; label: string; icon: React.ReactNode; badge?: number }[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={19} /> },
-    { id: 'new-download', label: 'New Download', icon: <PlusCircle size={19} /> },
-    { id: 'queue', label: 'Queue', icon: <ListOrdered size={19} />, badge: queueCount },
-    { id: 'history', label: 'History', icon: <History size={19} /> },
-    { id: 'format-explorer', label: 'Format Explorer', icon: <Layers size={19} /> },
-    { id: 'presets', label: 'Presets & Profiles', icon: <SlidersHorizontal size={19} /> },
-    { id: 'command-builder', label: 'Command Builder', icon: <Terminal size={19} /> },
-    { id: 'logs', label: 'Logs & Activity', icon: <ScrollText size={19} /> },
-    { id: 'settings', label: 'Settings', icon: <Settings size={19} /> },
-    { id: 'about', label: 'About', icon: <Info size={19} /> },
+  const navGroups: NavGroup[] = [
+    {
+      title: 'WORKSPACE',
+      items: [
+        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={16} /> },
+        { id: 'new-download', label: 'New Download', icon: <PlusCircle size={16} /> },
+        { id: 'queue', label: 'Queue', icon: <ListOrdered size={16} />, badge: queueCount },
+        { id: 'history', label: 'History', icon: <History size={16} /> }
+      ]
+    },
+    {
+      title: 'AUTOMATION',
+      items: [
+        { id: 'presets', label: 'Presets & Profiles', icon: <SlidersHorizontal size={16} /> },
+        { id: 'command-builder', label: 'Command Builder', icon: <Terminal size={16} /> },
+        { id: 'format-explorer', label: 'Format Explorer', icon: <Layers size={16} /> }
+      ]
+    },
+    {
+      title: 'SYSTEM',
+      items: [
+        { id: 'logs', label: 'Logs & Diagnostics', icon: <ScrollText size={16} /> },
+        { id: 'settings', label: 'Settings', icon: <Settings size={16} /> },
+        { id: 'about', label: 'About', icon: <Info size={16} /> }
+      ]
+    }
   ];
 
   return (
@@ -66,128 +92,194 @@ export const Sidebar: React.FC<SidebarProps> = ({
         transition: 'width var(--transition-normal)',
         zIndex: 20,
         userSelect: 'none',
-        height: '100%'
+        height: '100%',
+        flexShrink: 0
       }}
     >
-      {/* Brand Header */}
+      {/* App Branding Top Header */}
       <div
         style={{
           height: 'var(--header-height)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'space-between',
-          padding: collapsed ? '0' : '0 18px',
-          borderBottom: '1px solid var(--border-subtle)'
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          padding: collapsed ? '0' : '0 16px',
+          borderBottom: '1px solid var(--border-subtle)',
+          gap: 10
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 'var(--radius-md)',
-              background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              boxShadow: '0 2px 10px rgba(99, 102, 241, 0.3)'
-            }}
-          >
-            <Radio size={18} />
-          </div>
-          {!collapsed && (
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 15, letterSpacing: -0.2 }}>yt-dlp GUI</div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Pro Control Center</div>
-            </div>
-          )}
-        </div>
-
-        <button
-          onClick={onToggleCollapse}
-          className="btn-icon"
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          style={{ width: 28, height: 28, padding: 0 }}
-        >
-          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-        </button>
-      </div>
-
-      {/* Navigation List */}
-      <nav style={{ flex: 1, padding: '14px 10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {navItems.map((item) => {
-          const isActive = currentView === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => onSelectView(item.id)}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: collapsed ? 'center' : 'flex-start',
-                gap: 12,
-                padding: collapsed ? '10px 0' : '10px 14px',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: isActive ? 'var(--accent-primary-glow)' : 'transparent',
-                color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                fontWeight: isActive ? 600 : 500,
-                border: isActive ? '1px solid rgba(99, 102, 241, 0.35)' : '1px solid transparent',
-                position: 'relative'
-              }}
-              title={collapsed ? item.label : undefined}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {item.icon}
-              </div>
-
-              {!collapsed && (
-                <span style={{ flex: 1, textAlign: 'left', fontSize: 13 }}>
-                  {item.label}
-                </span>
-              )}
-
-              {item.badge !== undefined && item.badge > 0 && (
-                <span
-                  className="badge badge-primary"
-                  style={{
-                    position: collapsed ? 'absolute' : 'static',
-                    top: collapsed ? 4 : undefined,
-                    right: collapsed ? 4 : undefined,
-                    fontSize: 10,
-                    padding: '1px 6px',
-                    borderRadius: 'var(--radius-full)'
-                  }}
-                >
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Footer Info */}
-      {!collapsed && (
         <div
           style={{
-            padding: '12px 18px',
-            borderTop: '1px solid var(--border-subtle)',
-            fontSize: 11,
-            color: 'var(--text-muted)',
+            width: 28,
+            height: 28,
+            borderRadius: 'var(--radius-md)',
+            backgroundColor: '#161b22',
+            border: '1px solid #30363d',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--accent-primary-bright)',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.4)'
           }}
         >
-          <span>v1.0.0 (Desktop)</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: 'var(--accent-success)' }} />
-            Ready
-          </span>
+          <Download size={15} />
         </div>
-      )}
+
+        {!collapsed && (
+          <div style={{ overflow: 'hidden' }}>
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 13,
+                color: 'var(--text-primary)',
+                letterSpacing: -0.2,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              yt-dlp Desktop
+            </div>
+            <div
+              style={{
+                fontSize: 10,
+                color: 'var(--text-muted)',
+                letterSpacing: 0.3,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Control Panel
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation Sections */}
+      <nav
+        style={{
+          flex: 1,
+          padding: '10px 8px',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16
+        }}
+      >
+        {navGroups.map((group) => (
+          <div key={group.title} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {!collapsed && (
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: 'var(--text-muted)',
+                  letterSpacing: '0.08em',
+                  padding: '4px 10px 6px 10px',
+                  userSelect: 'none'
+                }}
+              >
+                {group.title}
+              </div>
+            )}
+
+            {group.items.map((item) => {
+              const isActive = currentView === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onSelectView(item.id)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    gap: 10,
+                    padding: collapsed ? '8px 0' : '7px 10px',
+                    borderRadius: 'var(--radius-md)',
+                    backgroundColor: isActive ? 'var(--accent-primary-glow)' : 'transparent',
+                    color: isActive ? 'var(--accent-primary-bright)' : 'var(--text-secondary)',
+                    fontWeight: isActive ? 600 : 500,
+                    fontSize: 13,
+                    border: isActive
+                      ? '1px solid rgba(63, 185, 80, 0.3)'
+                      : '1px solid transparent',
+                    position: 'relative',
+                    textAlign: 'left'
+                  }}
+                  title={collapsed ? item.label : undefined}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isActive ? 'var(--accent-primary-bright)' : 'var(--text-muted)'
+                    }}
+                  >
+                    {item.icon}
+                  </div>
+
+                  {!collapsed && (
+                    <span
+                      style={{
+                        flex: 1,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                  )}
+
+                  {item.badge !== undefined && Number(item.badge) > 0 && (
+                    <span
+                      className="badge-count"
+                      style={{
+                        position: collapsed ? 'absolute' : 'static',
+                        top: collapsed ? 3 : undefined,
+                        right: collapsed ? 3 : undefined,
+                        backgroundColor: isActive ? 'rgba(46, 160, 67, 0.25)' : '#161b22',
+                        color: isActive ? 'var(--accent-primary-bright)' : 'var(--text-muted)',
+                        borderColor: isActive ? 'rgba(63, 185, 80, 0.4)' : 'var(--border-light)'
+                      }}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
+
+      {/* Bottom Collapse Button (matching GitHub Power Suite) */}
+      <div
+        style={{
+          padding: '8px',
+          borderTop: '1px solid var(--border-subtle)'
+        }}
+      >
+        <button
+          onClick={onToggleCollapse}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            gap: 8,
+            padding: '6px 10px',
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: 'var(--text-muted)',
+            fontSize: 12,
+            borderRadius: 'var(--radius-md)'
+          }}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          <Menu size={15} />
+          {!collapsed && <span>Collapse</span>}
+        </button>
+      </div>
     </aside>
   );
 };
