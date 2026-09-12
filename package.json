@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "npm --prefix desktop run dev",
+    "start": "npm --prefix desktop run dev",
     "build": "npm --prefix desktop run build",
     "test": "npm --prefix desktop test",
     "install:desktop": "npm --prefix desktop install"
