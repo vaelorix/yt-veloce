@@ -25,7 +25,13 @@ const TelegramIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
 
 export const AboutView: React.FC = () => {
   const openExternal = (url: string) => {
-    window.electronAPI?.openPath?.(url);
+    if (window.electronAPI?.openExternal) {
+      window.electronAPI.openExternal(url);
+    } else if (window.electronAPI?.openPath) {
+      window.electronAPI.openPath(url);
+    } else {
+      window.open(url, '_blank');
+    }
   };
 
   return (

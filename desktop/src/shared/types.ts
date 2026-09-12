@@ -233,6 +233,7 @@ export interface ElectronAPI {
   updateSettings: (settings: Partial<AppSettings>) => Promise<AppSettings>;
   selectDirectory: () => Promise<string | null>;
   openPath: (filePath: string) => Promise<boolean>;
+  openExternal: (url: string) => Promise<boolean>;
   showItemInFolder: (filePath: string) => Promise<boolean>;
   
   // Logs

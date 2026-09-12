@@ -35,6 +35,7 @@ const api: ElectronAPI = {
   updateSettings: (settings: Partial<AppSettings>) => ipcRenderer.invoke('settings:update', settings),
   selectDirectory: () => ipcRenderer.invoke('system:selectDirectory'),
   openPath: (filePath: string) => ipcRenderer.invoke('system:openPath', filePath),
+  openExternal: (url: string) => ipcRenderer.invoke('system:openExternal', url),
   showItemInFolder: (filePath: string) => ipcRenderer.invoke('system:showItemInFolder', filePath),
 
   // Logs
