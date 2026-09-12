@@ -310,6 +310,15 @@ export class CommandBuilderService {
       });
     }
 
+    if (options.retries !== undefined && options.retries > 0) {
+      args.push('--retries', String(options.retries));
+      explanations.push({
+        flag: '--retries',
+        value: String(options.retries),
+        description: `Automatic connection drop retry attempts: ${options.retries}`
+      });
+    }
+
     // Authentication & Cookies
     if (options.cookiesBrowser && options.cookiesBrowser.trim().length > 0 && options.cookiesBrowser !== 'none') {
       args.push('--cookies-from-browser', options.cookiesBrowser.trim());
